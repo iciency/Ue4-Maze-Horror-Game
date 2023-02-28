@@ -4,3 +4,4 @@
 /Build
 *.sln
 *_BuiltData.uasset
+/Binaries
