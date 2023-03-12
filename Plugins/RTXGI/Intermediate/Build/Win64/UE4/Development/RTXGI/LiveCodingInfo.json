@@ -1,0 +1,19 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.RTXGI.cpp.obj": [
+			"DDGIVolume.cpp.obj",
+			"DDGIVolumeComponent.cpp.obj",
+			"DDGIVolumeUpdate.cpp.obj",
+			"DDGIVolumeVisualize.cpp.obj",
+			"RTXGIPlugin.cpp.obj",
+			"RTXGIPluginSettings.cpp.obj"
+		],
+		"Module.RTXGI.gen.cpp.obj": [
+			"DDGIVolume.gen.cpp.obj",
+			"DDGIVolumeComponent.gen.cpp.obj",
+			"RTXGI.init.gen.cpp.obj",
+			"RTXGIPluginSettings.gen.cpp.obj"
+		]
+	}
+}

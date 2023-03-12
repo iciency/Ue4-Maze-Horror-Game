@@ -1,0 +1,9 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.RTXGIEditor.cpp.obj": [
+			"RTXGIDetails.cpp.obj",
+			"RTXGIEditor.cpp.obj"
+		]
+	}
+}
