@@ -1,19 +1,19 @@
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGIEditor\Definitions.RTXGIEditor.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGIEditor/Private/RTXGIDetails.cpp
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGIEditor\Public\RTXGIDetails.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGIEditor\Definitions.RTXGIEditor.h
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGIEditor/Private/RTXGIDetails.cpp
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGIEditor\Public\RTXGIDetails.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\IDetailCustomization.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolume.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolume.generated.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolumeComponent.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolumeComponent.generated.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolume.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolume.generated.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolumeComponent.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolumeComponent.generated.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\DetailLayoutBuilder.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\IDetailPropertyRow.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\DetailWidgetRow.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\DetailCategoryBuilder.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\IDetailCustomNodeBuilder.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Editor\PropertyEditor\Public\DetailBuilderTypes.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGIEditor/Private/RTXGIEditor.cpp
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGIEditor\Public\RTXGIEditor.h
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGIEditor/Private/RTXGIEditor.cpp
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGIEditor\Public\RTXGIEditor.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\SlateCore\Public\Styling/SlateStyle.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\SlateCore\Public\Brushes/SlateBorderBrush.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\SlateCore\Public\Brushes/SlateBoxBrush.h

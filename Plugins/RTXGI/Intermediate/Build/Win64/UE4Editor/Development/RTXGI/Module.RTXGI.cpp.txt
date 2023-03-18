@@ -1,17 +1,17 @@
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Definitions.RTXGI.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolume.cpp
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolume.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolume.generated.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolumeComponent.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolumeComponent.generated.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Definitions.RTXGI.h
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolume.cpp
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolume.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolume.generated.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\DDGIVolumeComponent.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\DDGIVolumeComponent.generated.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Engine\Classes\Components/BoxComponent.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Engine\Classes\Components/ShapeComponent.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\ShapeComponent.generated.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\BoxComponent.generated.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeComponent.cpp
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\DDGIVolumeUpdate.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\RTXGIPluginSettings.h
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\RTXGIPluginSettings.generated.h
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeComponent.cpp
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\DDGIVolumeUpdate.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\RTXGIPluginSettings.h
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Inc\RTXGI\RTXGIPluginSettings.generated.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\RenderGraphBuilder.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\RenderGraphEvent.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\RenderGraphEvent.inl
@@ -108,7 +108,7 @@ C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\Halto
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\HaltonUtilities.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\VolumetricRenderTargetViewStateData.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\BasePassRendering.inl
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeUpdate.cpp
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeUpdate.cpp
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Engine\Classes\Engine/TextureRenderTarget2D.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Engine\Classes\Engine/TextureRenderTarget.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Inc\Engine\TextureRenderTarget.generated.h
@@ -117,15 +117,15 @@ C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\RayG
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\SceneTextureParameters.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Renderer\Private\RayTracing/RayTracingLighting.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Shaders\Shared\RayTracingDefinitions.h
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\INCLUDE\cmath
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\DDGIVolumeDescGPU.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeVisualize.cpp
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/RTXGIPlugin.cpp
-C:\Users\dlsel\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\RTXGIPlugin.h
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\cmath
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private\DDGIVolumeDescGPU.h
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/DDGIVolumeVisualize.cpp
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/RTXGIPlugin.cpp
+C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public\RTXGIPlugin.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\Interfaces/IPluginManager.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\PluginDescriptor.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\ModuleDescriptor.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\CustomBuildSteps.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\LocalizationDescriptor.h
 C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Projects\Public\PluginReferenceDescriptor.h
-C:/Users/dlsel/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/RTXGIPluginSettings.cpp
+C:/Unreal/Game_Planning_Task/Plugins/RTXGI/Source/RTXGI/Private/RTXGIPluginSettings.cpp
