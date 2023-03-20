@@ -24,5 +24,10 @@
 			"Name": "RTXGI",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"WindowsNoEditor",
+		"Android",
+		"IOS"
 	]
 }
