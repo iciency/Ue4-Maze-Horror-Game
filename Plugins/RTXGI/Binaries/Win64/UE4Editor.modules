@@ -2,7 +2,7 @@
 	"BuildId": "17155196",
 	"Modules": 
 	{
-		"RTXGI": "UE4Editor-RTXGI-0005.dll",
-		"RTXGIEditor": "UE4Editor-RTXGIEditor-0005.dll"
+		"RTXGI": "UE4Editor-RTXGI.dll",
+		"RTXGIEditor": "UE4Editor-RTXGIEditor.dll"
 	}
 }
