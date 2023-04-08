@@ -5,3 +5,4 @@
 *.sln
 *_BuiltData.uasset
 /Binaries
+/RTXGI
