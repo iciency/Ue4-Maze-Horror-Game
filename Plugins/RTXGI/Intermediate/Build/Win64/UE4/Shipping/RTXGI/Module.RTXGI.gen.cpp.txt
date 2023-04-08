@@ -1,0 +1,14 @@
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Definitions.RTXGI.h
+D:/CreateGame/Unreal/Game_Planning_Task/Plugins/RTXGI/Intermediate/Build/Win64/UE4/Inc/RTXGI/DDGIVolume.gen.cpp
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI/Public/DDGIVolume.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Inc\RTXGI\DDGIVolume.generated.h
+D:/CreateGame/Unreal/Game_Planning_Task/Plugins/RTXGI/Intermediate/Build/Win64/UE4/Inc/RTXGI/DDGIVolumeComponent.gen.cpp
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI/Public/DDGIVolumeComponent.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Inc\RTXGI\DDGIVolumeComponent.generated.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\CoreUObject\Public\Serialization/ArchiveUObjectFromStructuredArchive.h
+D:/CreateGame/Unreal/Game_Planning_Task/Plugins/RTXGI/Intermediate/Build/Win64/UE4/Inc/RTXGI/RTXGI.init.gen.cpp
+D:/CreateGame/Unreal/Game_Planning_Task/Plugins/RTXGI/Intermediate/Build/Win64/UE4/Inc/RTXGI/RTXGIPluginSettings.gen.cpp
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI/Private/RTXGIPluginSettings.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Inc\RTXGI\RTXGIPluginSettings.generated.h
