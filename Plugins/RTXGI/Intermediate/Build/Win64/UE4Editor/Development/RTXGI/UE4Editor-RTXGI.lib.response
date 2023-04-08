@@ -6,8 +6,8 @@
 /NAME:"UE4Editor-RTXGI.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Module.RTXGI.cpp.obj"
-"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Module.RTXGI.gen.cpp.obj"
-"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Default.rc2.res"
-/OUT:"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\UE4Editor-RTXGI.lib"
+"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Module.RTXGI.cpp.obj"
+"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Module.RTXGI.gen.cpp.obj"
+"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\Default.rc2.res"
+/OUT:"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4Editor\Development\RTXGI\UE4Editor-RTXGI.lib"

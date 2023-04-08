@@ -5,7 +5,6 @@
 *.sln
 *_BuiltData.uasset
 /Binaries
-
 Binaries/Win64/UE4Editor-Game_Planning_Task.dll
 Content/StarterContent/Architecture/Floor_400x400.uasset
 Plugins/RTXGI/Binaries/Win64/UE4Editor-RTXGI.dll

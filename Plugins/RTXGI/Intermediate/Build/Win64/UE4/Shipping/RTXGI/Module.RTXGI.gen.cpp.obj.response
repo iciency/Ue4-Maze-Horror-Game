@@ -33,7 +33,7 @@
 /I .
 /I Runtime\Renderer\Private
 /I Runtime\RenderCore\Public
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private
+/I C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Private
 /I ..\Intermediate\Build\Win64\UE4\Inc\CoreUObject
 /I Runtime
 /I Runtime\CoreUObject\Public
@@ -121,10 +121,10 @@
 /I Runtime\AnimationCore\Public
 /I ..\Intermediate\Build\Win64\UE4\Inc\MaterialShaderQualitySettings
 /I Runtime\MaterialShaderQualitySettings\Classes
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Inc\RTXGI
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source
+/I C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Inc\RTXGI
+/I C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source
 /I ..\Shaders\Shared
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public
+/I C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Source\RTXGI\Public
 /I Runtime\Projects\Public
 /I ThirdParty\PhysX3\PxShared\include
 /I ThirdParty\PhysX3\PxShared\include\cudamanager
@@ -149,18 +149,18 @@
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\RenderDebug\public
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\PairFilter\include
 /I ThirdParty\PhysX3\APEX_1.4\shared\internal\include
-/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\INCLUDE"
-/I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"
+/I "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
+/I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h"
-/Yu"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h"
-/Fp"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
-"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Module.RTXGI.gen.cpp"
-/FI"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Definitions.RTXGI.h"
-/Fo"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Module.RTXGI.gen.cpp.obj"
+/FI"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h"
+/Yu"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h"
+/Fp"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_Task\Shipping\Engine\SharedPCH.Engine.ShadowErrors.h.pch"
+"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Module.RTXGI.gen.cpp"
+/FI"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Definitions.RTXGI.h"
+/Fo"C:\Unreal\Game_Planning_Task\Plugins\RTXGI\Intermediate\Build\Win64\UE4\Shipping\RTXGI\Module.RTXGI.gen.cpp.obj"
 /TP
 /GR-
 /W4
