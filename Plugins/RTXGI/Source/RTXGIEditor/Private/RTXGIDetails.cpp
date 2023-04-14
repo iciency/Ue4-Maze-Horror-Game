@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -12,6 +12,7 @@
 #include "DDGIVolume.h"
 #include "DDGIVolumeComponent.h"
 #include "Widgets/Input/SButton.h"
+#include "Widgets/Text/STextBlock.h"
 #include "PropertyHandle.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"

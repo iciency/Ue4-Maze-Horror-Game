@@ -18,7 +18,7 @@ class UBillboardComponent;
 class UBoxComponent;
 class UDDGIVolumeComponent;
 
-UCLASS(HideCategories = (Navigation, Physics, Collision, Rendering, Tags, Cooking, Replication, Input, Actor, HLOD, Mobile, LOD))
+UCLASS(HideCategories = (Navigation, Physics, Collision, Rendering, Tags, Cooking, Replication, Input, Actor, HLOD, Mobile, LOD), meta = (DisplayName = "RTXGI DDGI Volume"))
 class RTXGI_API ADDGIVolume : public AActor
 {
 	GENERATED_UCLASS_BODY()

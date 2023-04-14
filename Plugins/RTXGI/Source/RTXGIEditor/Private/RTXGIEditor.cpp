@@ -25,8 +25,9 @@ void FRTXGIEditor::StartupModule()
 	if (!StyleSet.IsValid())
 	{
 		StyleSet = MakeShared<FSlateStyleSet>(FName("RTXGIPlacementStyle"));
+
 		FString IconPath = IPluginManager::Get().FindPlugin(TEXT("RTXGI"))->GetBaseDir() + TEXT("/Resources/Icon40.png");
-		StyleSet->Set("RTXGIPlacement.ModesIcon", new FSlateImageBrush(IconPath, FVector2D(40.0f, 40.0f)));
+		StyleSet->Set("ClassThumbnail.DDGIVolume", new FSlateImageBrush(IconPath, FVector2D(40.0f, 40.0f)));
 
 		FSlateStyleRegistry::RegisterSlateStyle(*StyleSet.Get());
 	}
@@ -62,15 +63,7 @@ void FRTXGIEditor::OnPlacementModeRefresh(FName CategoryName)
 	static FName VolumeName = FName(TEXT("Volumes"));
 	if (CategoryName == VolumeName)
 	{
-		FPlaceableItem* DDGIVolumePlacement = new FPlaceableItem(
-			*UActorFactory::StaticClass(),
-			FAssetData(ADDGIVolume::StaticClass()),
-			FName("RTXGIPlacement.ModesIcon"),
-			TOptional<FLinearColor>(),
-			TOptional<int32>(),
-			FText::FromString("RTXGI DDGI Volume")
-		);
-
+		FPlaceableItem* DDGIVolumePlacement = new FPlaceableItem(nullptr, FAssetData(ADDGIVolume::StaticClass()));
 		IPlacementModeModule::Get().RegisterPlaceableItem(CategoryName, MakeShareable(DDGIVolumePlacement));
 	}
 }

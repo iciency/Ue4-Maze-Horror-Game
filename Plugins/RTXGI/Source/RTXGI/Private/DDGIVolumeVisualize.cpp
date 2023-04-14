@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -12,12 +12,14 @@
 #include "DDGIVolume.h"
 #include "DDGIVolumeUpdate.h"
 #include "RTXGIPluginSettings.h"
+#include "LegacyEngineCompat.h"
+
 #include "RenderGraphBuilder.h"
 #include "ShaderParameterStruct.h"
 #include "ShaderParameterUtils.h"
 #include "SystemTextures.h"
 
-// UE4 private interfaces
+// UE private interfaces
 #include "PostProcess/SceneRenderTargets.h"
 #include "SceneRendering.h"
 #include "DeferredShadingRenderer.h"
@@ -39,12 +41,12 @@ BEGIN_SHADER_PARAMETER_STRUCT(FVolumeVisualizeShaderParameters, )
 	SHADER_PARAMETER(int, VolumeProbeNumIrradianceTexels)
 	SHADER_PARAMETER(int, VolumeProbeNumDistanceTexels)
 	SHADER_PARAMETER(float, VolumeProbeIrradianceEncodingGamma)
-	SHADER_PARAMETER(FVector, VolumePosition)
-	SHADER_PARAMETER(FVector4, VolumeRotation)
-	SHADER_PARAMETER(FVector, VolumeProbeGridSpacing)
+	SHADER_PARAMETER(FVector3f, VolumePosition)
+	SHADER_PARAMETER(FVector4f, VolumeRotation)
+	SHADER_PARAMETER(FVector3f, VolumeProbeGridSpacing)
 	SHADER_PARAMETER(FIntVector, VolumeProbeGridCounts)
-	SHADER_PARAMETER(FMatrix, WorldToClip)
-	SHADER_PARAMETER(FVector, CameraPosition)
+	SHADER_PARAMETER(FMatrix44f, WorldToClip)
+	SHADER_PARAMETER(FVector3f, CameraPosition)
 	SHADER_PARAMETER(float, PreExposure)
 	SHADER_PARAMETER(int32, ShouldUsePreExposure)
 	SHADER_PARAMETER(FIntVector, VolumeProbeScrollOffsets)
@@ -144,17 +146,17 @@ public:
 		for (int32 i = 0; i < NumRings + 1; i++)
 		{
 			const float Angle = i * RadiansPerRingSegment;
-			ArcVerts.Add(FVector(0.0f, FMath::Sin(Angle), FMath::Cos(Angle)));
+			ArcVerts.Add(FVector3f(0.0f, FMath::Sin(Angle), FMath::Cos(Angle)));
 		}
 
 		TResourceArray<VectorType, VERTEXBUFFER_ALIGNMENT> Verts;
 		Verts.Empty(NumVerts);
 		// Then rotate this arc NumSides + 1 times.
-		const FVector Center = FVector(0, 0, 0);
+		const FVector3f Center = FVector3f(0, 0, 0);
 		for (int32 s = 0; s < NumSides + 1; s++)
 		{
-			FRotator ArcRotator(0, 360.f * ((float)s / NumSides), 0);
-			FRotationMatrix ArcRot(ArcRotator);
+			FRotator3f ArcRotator(0, 360.f * ((float)s / NumSides), 0);
+			FRotationMatrix44f ArcRot(ArcRotator);
 
 			for (int32 v = 0; v < NumRings + 1; v++)
 			{
@@ -167,35 +169,15 @@ public:
 		uint32 Size = Verts.GetResourceDataSize();
 
 		// Create vertex buffer. Fill buffer with initial data upon creation
+#if ENGINE_MAJOR_VERSION < 5
 		FRHIResourceCreateInfo CreateInfo(&Verts);
+#else
+		FRHIResourceCreateInfo CreateInfo(TEXT("TDDGIProbeSphereVertexBuffer"), &Verts);
+#endif
 		VertexBufferRHI = RHICreateVertexBuffer(Size, BUF_Static, CreateInfo);
 	}
 
 	int32 GetVertexCount() const { return NumSphereVerts; }
-
-	/**
-	* Calculates the world transform for a sphere.
-	* @param OutTransform - The output world transform.
-	* @param Sphere - The sphere to generate the transform for.
-	* @param PreViewTranslation - The pre-view translation to apply to the transform.
-	* @param bConservativelyBoundSphere - when true, the sphere that is drawn will contain all positions in the analytical sphere,
-	*		 Otherwise the sphere vertices will lie on the analytical sphere and the positions on the faces will lie inside the sphere.
-	*/
-	void CalcTransform(FVector4& OutPosAndScale, const FSphere& Sphere, const FVector& PreViewTranslation, bool bConservativelyBoundSphere = true)
-	{
-		float Radius = Sphere.W;
-		if (bConservativelyBoundSphere)
-		{
-			const int32 NumRings = NumSphereRings;
-			const float RadiansPerRingSegment = PI / (float)NumRings;
-
-			// Boost the effective radius so that the edges of the sphere approximation lie on the sphere, instead of the vertices
-			Radius /= FMath::Cos(RadiansPerRingSegment);
-		}
-
-		const FVector Translate(Sphere.Center + PreViewTranslation);
-		OutPosAndScale = FVector4(Translate, Radius);
-	}
 
 private:
 	int32 NumSphereVerts;
@@ -239,7 +221,11 @@ public:
 		const uint32 Stride = sizeof(uint16);
 
 		// Create index buffer. Fill buffer with initial data upon creation
+#if ENGINE_MAJOR_VERSION < 5
 		FRHIResourceCreateInfo CreateInfo(&Indices);
+#else
+		FRHIResourceCreateInfo CreateInfo(TEXT("TDDGIProbeSphereIndexBuffer"), &Indices);
+#endif
 		IndexBufferRHI = RHICreateIndexBuffer(Stride, Size, BUF_Static, CreateInfo);
 	}
 
@@ -251,9 +237,9 @@ private:
 
 struct FVisualDDGIProbesVertex
 {
-	FVector4 Position;
+	FVector4f Position;
 	FVisualDDGIProbesVertex() {}
-	FVisualDDGIProbesVertex(const FVector4& InPosition) : Position(InPosition) {}
+	FVisualDDGIProbesVertex(const FVector4f& InPosition) : Position(InPosition) {}
 };
 
 class FVisualizeDDGIProbesVertexDeclaration : public FRenderResource
@@ -279,14 +265,14 @@ public:
 };
 
 TGlobalResource<FVisualizeDDGIProbesVertexDeclaration> GVisualizeDDGIProbesVertexDeclaration;
-TGlobalResource<TDDGIProbeSphereVertexBuffer<36, 24, FVector4>> GDDGIProbeSphereVertexBuffer;
+TGlobalResource<TDDGIProbeSphereVertexBuffer<36, 24, FVector4f>> GDDGIProbeSphereVertexBuffer;
 TGlobalResource<TDDGIProbeSphereIndexBuffer<36, 24>> GDDGIProbeSphereIndexBuffer;
 
 void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 	const FScene& Scene,
 	const FViewInfo& View,
 	FRDGBuilder& GraphBuilder,
-	FGlobalIlluminationExperimentalPluginResources& Resources)
+	FGlobalIlluminationPluginResources& Resources)
 {
 	check(IsInRenderingThread() || IsInParallelRenderingThread());
 
@@ -301,13 +287,18 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 
 	// Get other things we'll need for all proxies
 	FIntRect ViewRect = View.ViewRect;
+#if ENGINE_MAJOR_VERSION < 5
 	FRDGTextureRef SceneColorTexture = GraphBuilder.RegisterExternalTexture(Resources.SceneColor);
 	FRDGTextureRef SceneDepthTexture = GraphBuilder.RegisterExternalTexture(Resources.SceneDepthZ);
+#else
+	FRDGTextureRef SceneColorTexture = Resources.SceneColor;
+	FRDGTextureRef SceneDepthTexture = Resources.SceneDepthZ;
+#endif
 
 	for (FDDGIVolumeSceneProxy* proxy : FDDGIVolumeSceneProxy::AllProxiesReadyForRender_RenderThread)
 	{
 		// Skip if the volume visualization is not enabled
-		if (!proxy->ComponentData.EnableProbeVisulization) continue;
+		if (!proxy->ComponentData.EnableProbeVisualization) continue;
 
 		// Skip this volume if it isn't part of the current scene
 		if (proxy->OwningScene != &Scene) continue;
@@ -345,8 +336,8 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 		PassParameters->ProbeStates = RegisterExternalTextureWithFallback(GraphBuilder, proxy->ProbesStates, GSystemTextures.BlackDummy);
 		PassParameters->ProbeRadius = probeRadius;
 		PassParameters->DepthScale = depthScale;
-		PassParameters->WorldToClip = View.ViewMatrices.GetViewProjectionMatrix();
-		PassParameters->CameraPosition = View.ViewLocation;
+		PassParameters->WorldToClip = static_cast<FMatrix44f>(View.ViewMatrices.GetViewProjectionMatrix());
+		PassParameters->CameraPosition = static_cast<FVector3f>(View.ViewLocation);
 
 		PassParameters->ShouldUsePreExposure = View.Family->EngineShowFlags.Tonemapper;
 		PassParameters->PreExposure = View.PreExposure;
@@ -359,11 +350,11 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 		PassParameters->VolumeProbeIrradianceEncodingGamma = proxy->ComponentData.ProbeIrradianceEncodingGamma;
 
 		PassParameters->VolumePosition = proxy->ComponentData.Origin;
-		FQuat rotation = proxy->ComponentData.Transform.GetRotation();
-		PassParameters->VolumeRotation = FVector4{ rotation.X, rotation.Y, rotation.Z, rotation.W };
+		FQuat4f rotation = FQuat4f(proxy->ComponentData.Transform.GetRotation());
+		PassParameters->VolumeRotation = FVector4f{ rotation.X, rotation.Y, rotation.Z, rotation.W };
 
-		FVector volumeSize = proxy->ComponentData.Transform.GetScale3D() * 200.0f;
-		FVector probeGridSpacing;
+		FVector3f volumeSize = proxy->ComponentData.Transform.GetScale3D() * 200.0f;
+		FVector3f probeGridSpacing;
 		probeGridSpacing.X = volumeSize.X / float(proxy->ComponentData.ProbeCounts.X);
 		probeGridSpacing.Y = volumeSize.Y / float(proxy->ComponentData.ProbeCounts.Y);
 		probeGridSpacing.Z = volumeSize.Z / float(proxy->ComponentData.ProbeCounts.Z);
@@ -398,7 +389,11 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 				GraphicsPSOInit.BoundShaderState.VertexShaderRHI = VertexShader.GetVertexShader();
 				GraphicsPSOInit.BoundShaderState.PixelShaderRHI = PixelShader.GetPixelShader();
 				GraphicsPSOInit.PrimitiveType = PT_TriangleList;
+#if ENGINE_MAJOR_VERSION < 5
 				SetGraphicsPipelineState(RHICmdList, GraphicsPSOInit);
+#else
+				SetGraphicsPipelineState(RHICmdList, GraphicsPSOInit, 0);
+#endif
 
 				SetShaderParameters(RHICmdList, VertexShader, VertexShader.GetVertexShader(), *PassParameters);
 				SetShaderParameters(RHICmdList, PixelShader, PixelShader.GetPixelShader(), *PassParameters);
@@ -414,7 +409,7 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread(
 	const FScene& Scene,
 	const FViewInfo& View,
 	FRDGBuilder& GraphBuilder,
-	FGlobalIlluminationExperimentalPluginResources& Resources){}
+	FGlobalIlluminationPluginResources& Resources){}
 #endif //!(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
@@ -446,28 +441,44 @@ static bool MemoryUseExec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
 
 				if (proxy->ProbesIrradiance)
 				{
+#if ENGINE_MAJOR_VERSION < 5
 					FRHITexture2D* texture = proxy->ProbesIrradiance->GetShaderResourceRHI()->GetTexture2D();
+#else
+					FRHITexture2D* texture = proxy->ProbesIrradiance->GetRHI()->GetTexture2D();
+#endif
 					if (texture)
 						info.irradianceBytes = texture->GetSizeX()* texture->GetSizeY()* GPixelFormats[texture->GetFormat()].BlockBytes;
 				}
 
 				if (proxy->ProbesDistance)
 				{
+#if ENGINE_MAJOR_VERSION < 5
 					FRHITexture2D* texture = proxy->ProbesDistance->GetShaderResourceRHI()->GetTexture2D();
+#else
+					FRHITexture2D* texture = proxy->ProbesDistance->GetRHI()->GetTexture2D();
+#endif
 					if (texture)
 						info.distanceBytes = texture->GetSizeX() * texture->GetSizeY() * GPixelFormats[texture->GetFormat()].BlockBytes;
 				}
 
 				if (proxy->ProbesOffsets)
 				{
+#if ENGINE_MAJOR_VERSION < 5
 					FRHITexture2D* texture = proxy->ProbesOffsets->GetShaderResourceRHI()->GetTexture2D();
+#else
+					FRHITexture2D* texture = proxy->ProbesOffsets->GetRHI()->GetTexture2D();
+#endif
 					if (texture)
 						info.offsetsBytes = texture->GetSizeX() * texture->GetSizeY() * GPixelFormats[texture->GetFormat()].BlockBytes;
 				}
 
 				if (proxy->ProbesStates)
 				{
+#if ENGINE_MAJOR_VERSION < 5
 					FRHITexture2D* texture = proxy->ProbesStates->GetShaderResourceRHI()->GetTexture2D();
+#else
+					FRHITexture2D* texture = proxy->ProbesStates->GetRHI()->GetTexture2D();
+#endif
 					if (texture)
 						info.statesBytes = texture->GetSizeX() * texture->GetSizeY() * GPixelFormats[texture->GetFormat()].BlockBytes;
 				}

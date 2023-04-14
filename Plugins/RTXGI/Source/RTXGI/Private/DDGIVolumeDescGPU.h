@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -11,15 +11,18 @@
 #ifndef RTXGI_DDGI_VOLUME_DESC_GPU_H
 #define RTXGI_DDGI_VOLUME_DESC_GPU_H
 
+#include "LegacyEngineCompat.h"
+
+
 /**
  * DDGIVolumeDescGPU
  * The condensed DDGIVolume descriptor for use on the GPU.
  */
 BEGIN_UNIFORM_BUFFER_STRUCT(FDDGIVolumeDescGPU, )
-	SHADER_PARAMETER(FVector,       origin)
+	SHADER_PARAMETER(FVector3f,       origin)
 	SHADER_PARAMETER(int,           numRaysPerProbe)
-	SHADER_PARAMETER(FVector4,      rotation)
-	SHADER_PARAMETER(FVector,       probeGridSpacing)
+	SHADER_PARAMETER(FVector4f,      rotation)
+	SHADER_PARAMETER(FVector3f,       probeGridSpacing)
 	SHADER_PARAMETER(float,         probeMaxRayDistance)
 	SHADER_PARAMETER(FIntVector,    probeGridCounts)
 	SHADER_PARAMETER(float,         probeDistanceExponent)
@@ -32,7 +35,7 @@ BEGIN_UNIFORM_BUFFER_STRUCT(FDDGIVolumeDescGPU, )
 	SHADER_PARAMETER(int,           probeNumDistanceTexels)
 	SHADER_PARAMETER(float,         normalBias)
 	SHADER_PARAMETER(float,         viewBias)
-	SHADER_PARAMETER(FMatrix,       probeRayRotationTransform)
+	SHADER_PARAMETER(FMatrix44f,       probeRayRotationTransform)
 
 	SHADER_PARAMETER(int,           volumeMovementType)
 	SHADER_PARAMETER(FIntVector,    probeScrollOffsets)

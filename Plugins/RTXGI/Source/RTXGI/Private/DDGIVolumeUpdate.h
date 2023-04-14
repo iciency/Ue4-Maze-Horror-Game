@@ -17,10 +17,15 @@ class FRDGBuilder;
 class UDDGIVolumeComponent;
 class FScene;
 
+#ifndef WITH_RTXGI
+#define WITH_RTXGI 0
+#endif
+
 namespace DDGIVolumeUpdate
 {
 	void Startup();
 	void Shutdown();
 
+	void DDGIInitLoadedVolumes_RenderThread(FRDGBuilder& GraphBuilder);
 	void DDGIUpdatePerFrame_RenderThread(const FScene& Scene, const FViewInfo& View, FRDGBuilder& GraphBuilder);
 }

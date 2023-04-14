@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -88,10 +88,14 @@ float GetTapWeight(int2 PixelIndex, float SceneDepth, float3 WorldPosition, floa
     float4 GBufferNearestPosition = float4(GBufferNearestUV * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
     float3 GBufferNearestInScreenVector = mul(float4(GBufferNearestPosition.xy, 1, 0), View.ScreenToTranslatedWorld).xyz;
 
-    float2 TapBufferUV = TapScreenUV * View.ViewSizeAndInvSize.xy * View.BufferSizeAndInvSize.zw;
+    float2 TapBufferUV = (TapScreenUV * View.ViewSizeAndInvSize.xy + View.ViewRectMin.xy) * View.BufferSizeAndInvSize.zw;
     float TapDeviceZ = DepthTexture.SampleLevel(PointClampSampler, TapBufferUV, 0.f).r;
     float TapSceneDepth = ConvertFromDeviceZ(TapDeviceZ);
+#if UE4_COMPAT
     float3 TapWorldPosition = GBufferNearestInScreenVector * TapSceneDepth + View.WorldCameraOrigin;
+#else
+    float3 TapWorldPosition = GBufferNearestInScreenVector * TapSceneDepth + LWCHackToFloat(PrimaryView.WorldCameraOrigin);
+#endif
     float3 TapNormal = normalize(DecodeNormal(NormalTexture.SampleLevel(PointClampSampler, TapBufferUV, 0.f).xyz));
 
     return GetGeometryWeight(SceneDepth, WorldPosition, Normal, TapWorldPosition, TapNormal);
@@ -109,14 +113,18 @@ float3 GetAlbedo(int2 PixelIndex)
 [numthreads(THGP_DIM, THGP_DIM, 1)]
 void MainCS(uint3 DispatchThreadID : SV_DispatchThreadID)
 {
-    int2 PixelIndex = (DispatchThreadID.xy);
-    float2 ScreenUV = (float2(PixelIndex) + .5f) * float2(View.ViewSizeAndInvSize.zw);
+    int2 PixelIndex = (DispatchThreadID.xy) + View.ViewRectMin.xy;
+    float2 ScreenUV = (float2(DispatchThreadID.xy) + .5f) * float2(View.ViewSizeAndInvSize.zw);
     float4 Position = float4(ScreenUV * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
     float3 InScreenVector = mul(float4(Position.xy, 1, 0), View.ScreenToTranslatedWorld).xyz;
 
     float DeviceZ = DepthTexture.Load(int3(PixelIndex, 0)).r;
     float SceneDepth = ConvertFromDeviceZ(DeviceZ);
+#if UE4_COMPAT
     float3 WorldPosition = InScreenVector * SceneDepth + View.WorldCameraOrigin;
+#else
+    float3 WorldPosition = InScreenVector * SceneDepth + LWCHackToFloat(PrimaryView.WorldCameraOrigin);
+#endif
     float3 Normal = normalize(DecodeNormal(NormalTexture.Load(int3(PixelIndex, 0)).xyz));
 
     float3 Albedo = GetAlbedo(PixelIndex);

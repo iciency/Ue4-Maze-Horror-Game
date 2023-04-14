@@ -21,7 +21,7 @@ void EmptyLinkFunctionForGeneratedCodeRTXGI_init() {}
 				nullptr,
 				0,
 				PKG_CompiledIn | 0x00000000,
-				0xFCDAFB8B,
+				0xB63E575D,
 				0xB2100DB0,
 				METADATA_PARAMS(nullptr, 0)
 			};

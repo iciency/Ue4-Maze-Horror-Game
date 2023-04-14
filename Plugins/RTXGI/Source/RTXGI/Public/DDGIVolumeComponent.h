@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -18,6 +18,9 @@
 #include "RHI.h"
 #include "RHIResources.h"
 #include "RendererInterface.h"
+#include "Runtime/Launch/Resources/Version.h"
+
+#include "DDGIUtilities.h"
 
 #include "DDGIVolumeComponent.generated.h"
 
@@ -27,10 +30,18 @@ class FScene;
 class FSceneInterface;
 class FSceneRenderTargets;
 class FViewInfo;
-class FGlobalIlluminationExperimentalPluginResources;
+#if ENGINE_MAJOR_VERSION < 5
+using FGlobalIlluminationPluginResources = class FGlobalIlluminationExperimentalPluginResources;
+#else
+class FGlobalIlluminationPluginResources;
+#endif
 
 enum class EDDGIIrradianceBits : uint8;
 enum class EDDGIDistanceBits : uint8;
+
+#ifndef WITH_RTXGI
+#define WITH_RTXGI 0
+#endif
 
 // This needs to match the shader code in ProbeBlendingCS.usf
 UENUM()
@@ -98,23 +109,26 @@ public:
 
 	bool IntersectsViewFrustum(const FViewInfo& View);
 
+	static void HandlePreWorldFinishDestroy(UWorld* InWorld);
+
 	static void RenderDiffuseIndirectLight_RenderThread(
 		const FScene& Scene,
 		const FViewInfo& View,
 		FRDGBuilder& GraphBuilder,
-		FGlobalIlluminationExperimentalPluginResources& Resources);
+		FGlobalIlluminationPluginResources& Resources);
 
 	static void RenderDiffuseIndirectVisualizations_RenderThread(
 		const FScene& Scene,
 		const FViewInfo& View,
 		FRDGBuilder& GraphBuilder,
-		FGlobalIlluminationExperimentalPluginResources& Resources);
+		FGlobalIlluminationPluginResources& Resources);
 
 	void ReallocateSurfaces_RenderThread(FRHICommandListImmediate& RHICmdList, EDDGIIrradianceBits IrradianceBits, EDDGIDistanceBits DistanceBits);
 	void ResetTextures_RenderThread(FRDGBuilder& GraphBuilder);
 
 	static void OnIrradianceOrDistanceBitsChange();
 
+	static FDelegateHandle OnPreWorldFinishDestroyHandle;
 	static FDelegateHandle RenderDiffuseIndirectLightHandle;
 	static FDelegateHandle RenderDiffuseIndirectVisualizationsHandle;
 
@@ -145,26 +159,15 @@ public:
 		static const uint32 c_NumTexelsIrradiance = 6;
 		static const uint32 c_NumTexelsDistance = 14;
 
-		uint32 GetNumRaysPerProbe() const
-		{
-			switch (RaysPerProbe)
-			{
-				case EDDGIRaysPerProbe::n144: return 144;
-				case EDDGIRaysPerProbe::n288: return 288;
-				case EDDGIRaysPerProbe::n432: return 432;
-				case EDDGIRaysPerProbe::n576: return 576;
-				case EDDGIRaysPerProbe::n720: return 720;
-				case EDDGIRaysPerProbe::n864: return 864;
-				case EDDGIRaysPerProbe::n1008: return 1008;
-			}
-			check(false);
-			return 144;
-		}
-
 		EDDGIRaysPerProbe RaysPerProbe = EDDGIRaysPerProbe::n144;
 		float ProbeMaxRayDistance = 1000.0f;
+#if ENGINE_MAJOR_VERSION < 5
 		FTransform Transform = FTransform::Identity;
-		FVector Origin = FVector(0);
+		FVector Origin = FVector(0.0f);
+#else
+		FTransform3f Transform = FTransform3f::Identity;
+		FVector3f Origin = FVector3f(0.0f);
+#endif
 		FLightingChannels LightingChannels;
 		FIntVector ProbeCounts = FIntVector(0); // 0 = invalid, will be written with valid counts before use
 		float ProbeDistanceExponent = 1.0f;
@@ -182,7 +185,7 @@ public:
 		float ProbeMinFrontfaceDistance = 0.0f;
 		bool EnableProbeRelocation = false;
 		bool EnableProbeScrolling = false;
-		bool EnableProbeVisulization = false;
+		bool EnableProbeVisualization = false;
 		bool EnableVolume = true;
 		FIntVector ProbeScrollOffsets = FIntVector{ 0, 0, 0 };
 		float IrradianceScalar = 1.0f;
@@ -190,20 +193,7 @@ public:
 		float LightingMultiplier = 1.0f;
 		bool RuntimeStatic = false; // If true, does not update during gameplay, only during editor.
 		EDDGISkyLightType SkyLightTypeOnRayMiss = EDDGISkyLightType::Raster;
-
-		// This is GetDDGIVolumeProbeCounts() from the SDK
-		FIntPoint Get2DProbeCount() const
-		{
-			return FIntPoint(
-				ProbeCounts.Y * ProbeCounts.Z,
-				ProbeCounts.X
-			);
-		}
-
-		int GetProbeCount() const
-		{
-			return ProbeCounts.X * ProbeCounts.Y * ProbeCounts.Z;
-		}
+		bool bForceUpdate = false;
 	};
 	FComponentData ComponentData;
 	FDDGITextureLoadContext TextureLoadContext;
@@ -220,11 +210,64 @@ public:
 	int ProbeIndexCount = 0;
 
 	static TSet<FDDGIVolumeSceneProxy*> AllProxiesReadyForRender_RenderThread;
-	static TMap<const FSceneInterface*, float> SceneRoundRobinValue;
+	static TMap<const void*, float> SceneRoundRobinValue;
 
 	// Only render volumes in the scenes they are present in
 	FSceneInterface* OwningScene;
+
+	static FRenderQueryPoolRHIRef DDGIQueryPool;
+	static FLatentGPUTimerDDGI UpdateTimer;
+	static FRenderQueryPoolRHIRef DDGITotalQueryPool;
+	static FLatentGPUTimerDDGI TotalTimer;
 };
+
+static uint32 GetNumRaysPerProbe(EDDGIRaysPerProbe RaysPerProbe)
+{
+	switch (RaysPerProbe)
+	{
+	case EDDGIRaysPerProbe::n144: return 144;
+	case EDDGIRaysPerProbe::n288: return 288;
+	case EDDGIRaysPerProbe::n432: return 432;
+	case EDDGIRaysPerProbe::n576: return 576;
+	case EDDGIRaysPerProbe::n720: return 720;
+	case EDDGIRaysPerProbe::n864: return 864;
+	case EDDGIRaysPerProbe::n1008: return 1008;
+	}
+	check(false);
+	return 144;
+}
+
+// This is GetDDGIVolumeProbeCounts() from the SDK
+static FIntPoint Get2DProbeCount(FIntVector ProbeCounts)
+{
+	return FIntPoint(
+		ProbeCounts.Y * ProbeCounts.Z,
+		ProbeCounts.X
+	);
+}
+
+static FIntPoint GetIrradianceTextureDimensions(FIntVector ProbeCounts)
+{
+	return Get2DProbeCount(ProbeCounts) * (FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsIrradiance + 2);
+}
+
+static FIntPoint GetDistanceTextureDimensions(FIntVector ProbeCounts)
+{
+	return Get2DProbeCount(ProbeCounts) * (FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsDistance + 2);
+}
+
+static int32 GetProbeCount(FIntVector ProbeCounts)
+{
+	return ProbeCounts.X * ProbeCounts.Y * ProbeCounts.Z;
+}
+
+static FIntPoint GetRadianceAndDistanceTextureDimensions(EDDGIRaysPerProbe RaysPerProbe, FIntVector ProbeCounts)
+{
+	return FIntPoint(
+		GetNumRaysPerProbe(RaysPerProbe),
+		GetProbeCount(ProbeCounts)
+	);
+}
 
 USTRUCT(BlueprintType)
 struct FProbeRelocation
@@ -311,8 +354,8 @@ public:
 	UPROPERTY(EditAnywhere, AdvancedDisplay, Category = "GI Volume");
 	bool RuntimeStatic = false;
 
-	UPROPERTY(VisibleDefaultsOnly, AdvancedDisplay, Category = "GI Volume");
-	FVector LastOrigin = FVector{ 0.0f, 0.0f, 0.0f };
+	UPROPERTY(meta=(DeprecatedProperty, DeprecationMessage = "not needed from blueprints"));
+	FVector LastOrigin_DEPRECATED;
 
 	// --- "GI Probes" properties
 
@@ -344,8 +387,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "GI Probes");
 	bool VisualizeProbes = false;
 
-	UPROPERTY(VisibleDefaultsOnly, AdvancedDisplay, Category = "GI Probes");
-	FIntVector ProbeScrollOffset = FIntVector{ 0, 0, 0 };
+	UPROPERTY(meta=(DeprecatedProperty, DeprecationMessage = "not needed from blueprints"));
+	FIntVector ProbeScrollOffset_DEPRECATED;
 
 	// Exponent for depth testing. A high value will rapidly react to depth discontinuities, but risks causing banding.
 	UPROPERTY(EditAnywhere, AdvancedDisplay, Category = "GI Probes");
@@ -380,11 +423,11 @@ public:
 	UPROPERTY(EditAnywhere, Category = "GI Lighting", meta = (ClampMin = "0"));
 	float NormalBias = 10.0f;
 
-	// If you want to artificially increase the amount of lighting given by this volume, you can modify this lighting multiplier to do so.
+	// Artificially modifies the amount of lighting given by this volume. Note that this multiplier affects emissive lighting.
 	UPROPERTY(EditAnywhere, Category = "GI Lighting", meta = (ClampMin = "0"));
 	float LightMultiplier = 1.0f;
 
-	// Use this to artificially modify how much emissive lighting contributes to GI
+	// Artificially modifies emissive lighting contribution
 	UPROPERTY(EditAnywhere, Category = "GI Lighting", meta = (ClampMin = "0"));
 	float EmissiveMultiplier = 1.0f;
 
@@ -405,6 +448,42 @@ public:
 	void ToggleVolume(bool IsVolumeEnabled);
 
 	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetUpdatePriority() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetUpdatePriority(float NewUpdatePriority);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetLightingPriority() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetLightingPriority(float NewLightingPriority);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetBlendingDistance() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetBlendingDistance(float NewBlendingDistance);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetBlendingCutoffDistance() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetBlendingCutoffDistance(float NewBlendingCutoffDistance);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetViewBias() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetViewBias(float NewViewBias);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	float GetNormalBias() const;
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
+	void SetNormalBias(float NewNormalBias);
+
+	UFUNCTION(BlueprintCallable, Category = "DDGI")
 	float GetIrradianceScalar() const;
 
 	UFUNCTION(BlueprintCallable, Category = "DDGI")
@@ -422,9 +501,23 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "DDGI")
 	void SetLightMultiplier(float NewLightMultiplier);
 
+	UFUNCTION(BlueprintCallable, meta = (AdvancedDisplay = "2", DevelopmentOnly), Category = "DDGI")
+	void SetProbesVisualization(bool IsProbesVisualized);
+
 	FDDGIVolumeSceneProxy* SceneProxy;
 
 	// When loading a volume we get data for it's textures but don't have a scene proxy yet.
 	// This is where that data is stored until the scene proxy is ready to take it.
 	FDDGITextureLoadContext LoadContext;
+
+	FIntVector PrevProbeScrollOffsets;
+
+	FIntVector PrevProbeCounts = FIntVector(0);
+
+#if ENGINE_MAJOR_VERSION < 5
+	FVector LastOrigin = FVector{ 0.0f, 0.0f, 0.0f };
+#else
+	FVector3f LastOrigin = FVector3f{ 0.0f, 0.0f, 0.0f };
+#endif
+	FIntVector ProbeScrollOffset = FIntVector{ 0, 0, 0 };
 };

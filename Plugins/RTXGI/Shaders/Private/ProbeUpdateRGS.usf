@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -17,6 +17,7 @@
 // needed by DeferredLightingCommon included indirectly
 #define SUPPORT_CONTACT_SHADOWS 0
 
+#if UE4_COMPAT
 // from RayTracingPrimaryRays.usf - see that .cpp for how to pass all these params properly
 #define LTCMatTexture               RaytracingLightsDataPacked.LTCMatTexture
 #define LTCMatSampler               RaytracingLightsDataPacked.LTCMatSampler
@@ -24,6 +25,7 @@
 #define LTCAmpSampler               RaytracingLightsDataPacked.LTCAmpSampler
 #define PreIntegratedGF             ReflectionStruct.PreIntegratedGF
 #define PreIntegratedGFSampler      ReflectionStruct.PreIntegratedGFSampler
+#endif
 
 #include "/Engine/Private/DeferredLightingCommon.ush"
 #include "/Engine/Private/DeferredShadingCommon.ush"
@@ -48,6 +50,10 @@ RaytracingAccelerationStructure TLAS;
 
 RWTexture2D<float4> RadianceOutput;
 RWTexture2D<float4> DebugOutput;
+
+#if RTXGI_DDGI_PARTIAL_UPDATE_ISV
+RWTexture2D<uint>   DDGIProbeScrollSpace;
+#endif
 
 uint   FrameRandomSeed;
 
@@ -114,6 +120,27 @@ RAY_TRACING_ENTRY_RAYGEN(ProbeUpdateRGS)
     int rayIndex = DispatchIndex.x;                    // index of ray within a probe
     int probeIndex = DispatchIndex.y;                  // index of current probe
 
+#if RTXGI_DDGI_INFINITE_SCROLLING_VOLUME
+    int storageProbeIndex = DDGIGetProbeIndexOffset(probeIndex, DDGIVolume_probeGridCounts, DDGIVolume_probeScrollOffsets);
+#else
+    int storageProbeIndex = probeIndex;
+#endif
+    int2 texelPosition = DDGIGetProbeTexelPosition(storageProbeIndex, DDGIVolume_probeGridCounts);
+
+#if RTXGI_DDGI_PARTIAL_UPDATE_ISV
+    uint3 prevProbeSpace;
+    prevProbeSpace.x = DDGIProbeScrollSpace[texelPosition].x & 0x01;
+    prevProbeSpace.y = (DDGIProbeScrollSpace[texelPosition].x & 0x02) >> 1;
+    prevProbeSpace.z = (DDGIProbeScrollSpace[texelPosition].x & 0x04) >> 2;
+
+    uint3 probeSpace = uint3(0, 0, 0);
+
+    int3 probeGridCoord = DDGIGetProbeCoords(probeIndex, DDGIVolume.probeGridCounts);
+    probeSpace = (probeGridCoord + DDGIVolume.probeScrollOffsets) / (DDGIVolume.probeGridCounts);
+    probeSpace = probeSpace % 2;
+    if(prevProbeSpace.x == probeSpace.x && prevProbeSpace.y == probeSpace.y && prevProbeSpace.z == probeSpace.z)
+        return;
+#else
     // Handle round robin updating.
     // If this probe is outside of the window for updating, bail out.
     {
@@ -122,14 +149,9 @@ RAY_TRACING_ENTRY_RAYGEN(ProbeUpdateRGS)
         if (probeRRIndex >= DDGIVolume_ProbeIndexStart + DDGIVolume_ProbeIndexCount)
             return;
     }
+#endif
 
 #if RTXGI_DDGI_PROBE_CLASSIFICATION
-#if RTXGI_DDGI_INFINITE_SCROLLING_VOLUME
-    int storageProbeIndex = DDGIGetProbeIndexOffset(probeIndex, DDGIVolume_probeGridCounts, DDGIVolume_probeScrollOffsets);
-#else
-    int storageProbeIndex = probeIndex;
-#endif
-    int2 texelPosition = DDGIGetProbeTexelPosition(storageProbeIndex, DDGIVolume_probeGridCounts);
     int  probeState = DDGIVolume_ProbeStates.Load(int3(texelPosition, 0));
     if (probeState == PROBE_STATE_INACTIVE && rayIndex >= RTXGI_DDGI_NUM_FIXED_RAYS)
     {
@@ -159,7 +181,8 @@ RAY_TRACING_ENTRY_RAYGEN(ProbeUpdateRGS)
 
     const int ReflectedShadowsType = 1; // = hard shadows.  make configurable?
     const uint RayFlags = 0;
-    const uint InstanceInclusionMask = RAY_TRACING_MASK_ALL;
+    // Opaque and alpha tested meshes and particles (e.g. used by reflection, shadow, AO and GI tracing passes)
+    const uint InstanceInclusionMask = RAY_TRACING_MASK_OPAQUE;
 
     const bool bShouldDoDirectLighting = true;
     const bool bShouldDoEmissiveAndIndirectLighting = true;

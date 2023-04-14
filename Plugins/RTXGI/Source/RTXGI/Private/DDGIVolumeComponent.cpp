@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -13,15 +13,16 @@
 #include "DDGIVolumeUpdate.h"
 
 #include "RTXGIPluginSettings.h"
+#include "LegacyEngineCompat.h"
 
-// UE4 Public Interfaces
+// UE Public Interfaces
 #include "ConvexVolume.h"
 #include "RenderGraphBuilder.h"
 #include "ShaderParameterStruct.h"
 #include "ShaderParameterUtils.h"
 #include "SystemTextures.h"
 
-// UE4 Private Interfaces
+// UE Private Interfaces
 #include "PostProcess/SceneRenderTargets.h"
 #include "SceneRendering.h"
 #include "DeferredShadingRenderer.h"
@@ -43,18 +44,24 @@ static TAutoConsoleVariable<float> CVarLightingPassScale(
 	TEXT("r.RTXGI.DDGI.LightingPass.Scale"),
 	1.0f,
 	TEXT("Scale for the lighting pass resolution between 0.25 - 1.0 (value is clamped to this range).\n"),
-	ECVF_RenderThreadSafe | ECVF_Cheat);
+	ECVF_RenderThreadSafe);
 
 static TAutoConsoleVariable<float> CVarRelativeDistanceThreshold(
 	TEXT("r.RTXGI.DDGI.LightingPass.RelativeDistanceThreshold"),
 	0.01f,
 	TEXT("Relative distance threshold for geometry test in the lighting upscaler.\n"),
-	ECVF_RenderThreadSafe | ECVF_Cheat);
+	ECVF_RenderThreadSafe);
 
 static TAutoConsoleVariable<float> CVarNormalPower(
 	TEXT("r.RTXGI.DDGI.LightingPass.NormalPower"),
 	1.f,
 	TEXT("Normal power for geometry test in the lighting upscaler.\n"),
+	ECVF_RenderThreadSafe);
+
+static TAutoConsoleVariable<int> CVarStatVolume(
+	TEXT("r.RTXGI.DDGI.StatVolume"),
+	0,
+	TEXT("The index for which volume's STAT is displayed\n"),
 	ECVF_RenderThreadSafe | ECVF_Cheat);
 
 BEGIN_SHADER_PARAMETER_STRUCT(FVolumeData, )
@@ -62,10 +69,10 @@ BEGIN_SHADER_PARAMETER_STRUCT(FVolumeData, )
 	SHADER_PARAMETER_RDG_TEXTURE(Texture2D, ProbeDistance)
 	SHADER_PARAMETER_RDG_TEXTURE(Texture2D, ProbeOffsets)
 	SHADER_PARAMETER_RDG_TEXTURE(Texture2D<uint>, ProbeStates)
-	SHADER_PARAMETER(FVector, Position)
-	SHADER_PARAMETER(FVector4, Rotation)
-	SHADER_PARAMETER(FVector, Radius)
-	SHADER_PARAMETER(FVector, ProbeGridSpacing)
+	SHADER_PARAMETER(FVector3f, Position)
+	SHADER_PARAMETER(FVector4f, Rotation)
+	SHADER_PARAMETER(FVector3f, Radius)
+	SHADER_PARAMETER(FVector3f, ProbeGridSpacing)
 	SHADER_PARAMETER(FIntVector, ProbeGridCounts)
 	SHADER_PARAMETER(FIntVector, ProbeScrollOffsets)
 	SHADER_PARAMETER(uint32, LightingChannelMask)
@@ -89,7 +96,8 @@ BEGIN_SHADER_PARAMETER_STRUCT(FApplyLightingDeferredShaderParameters, )
 	SHADER_PARAMETER_RDG_TEXTURE_UAV(RWTexture2D<float4>, LightingPassUAV)
 	SHADER_PARAMETER_SAMPLER(SamplerState, PointClampSampler)
 	SHADER_PARAMETER_SAMPLER(SamplerState, LinearClampSampler)
-	SHADER_PARAMETER(FVector4, ScaledViewSizeAndInvSize)
+	SHADER_PARAMETER(FVector4f, ScaledViewSizeAndInvSize)
+	SHADER_PARAMETER(FIntPoint, ScaledViewOffset)
 	SHADER_PARAMETER(int32, ShouldUsePreExposure)
 	SHADER_PARAMETER(int32, NumVolumes)
 	// Volumes are sorted from densest probes to least dense probes
@@ -106,7 +114,7 @@ BEGIN_SHADER_PARAMETER_STRUCT(FUpscaleLightingShaderParameters, )
 	SHADER_PARAMETER_RDG_TEXTURE_UAV(RWTexture2D<float4>, SceneColorOutput)
 	SHADER_PARAMETER_SAMPLER(SamplerState, PointClampSampler)
 	SHADER_PARAMETER_SAMPLER(SamplerState, LinearClampSampler)
-	SHADER_PARAMETER(FVector4, InputViewSizeAndInvSize)
+	SHADER_PARAMETER(FVector4f, InputViewSizeAndInvSize)
 	SHADER_PARAMETER(float, RelativeDistanceThreshold)
 	SHADER_PARAMETER(float, NormalPower)
 	SHADER_PARAMETER_STRUCT_REF(FViewUniformShaderParameters, ViewUniformBuffer)
@@ -141,6 +149,11 @@ public:
 
 		// needed for a typed UAV load. This already assumes we are raytracing, so should be fine.
 		OutEnvironment.CompilerFlags.Add(CFLAG_AllowTypedUAVLoads);
+#if ENGINE_MAJOR_VERSION < 5
+		OutEnvironment.SetDefine(TEXT("UE4_COMPAT"), 1);
+#else
+		OutEnvironment.SetDefine(TEXT("UE4_COMPAT"), 0);
+#endif
 	}
 
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
@@ -163,6 +176,11 @@ public:
 
 		// needed for a typed UAV load. This already assumes we are raytracing, so should be fine.
 		OutEnvironment.CompilerFlags.Add(CFLAG_AllowTypedUAVLoads);
+#if ENGINE_MAJOR_VERSION < 5
+		OutEnvironment.SetDefine(TEXT("UE4_COMPAT"), 1);
+#else
+		OutEnvironment.SetDefine(TEXT("UE4_COMPAT"), 0);
+#endif
 	}
 
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters)
@@ -175,25 +193,26 @@ IMPLEMENT_GLOBAL_SHADER(FApplyLightingDeferredShaderCS, "/Plugin/RTXGI/Private/A
 IMPLEMENT_GLOBAL_SHADER(FUpscaleLightingShaderCS, "/Plugin/RTXGI/Private/UpscaleLighting.usf", "MainCS", SF_Compute);
 
 // Delegate Handles
-FDelegateHandle FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizationsHandle;
+FDelegateHandle FDDGIVolumeSceneProxy::OnPreWorldFinishDestroyHandle;
 FDelegateHandle FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle;
+FDelegateHandle FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizationsHandle;
 
 TSet<FDDGIVolumeSceneProxy*> FDDGIVolumeSceneProxy::AllProxiesReadyForRender_RenderThread;
-TMap<const FSceneInterface*, float> FDDGIVolumeSceneProxy::SceneRoundRobinValue;
+TMap<const void*, float> FDDGIVolumeSceneProxy::SceneRoundRobinValue;
 
 bool FDDGIVolumeSceneProxy::IntersectsViewFrustum(const FViewInfo& View)
 {
 	// Get the volume position and scale
-	FVector ProxyPosition = ComponentData.Origin;
-	FQuat   ProxyRotation = ComponentData.Transform.GetRotation();
-	FVector ProxyScale = ComponentData.Transform.GetScale3D();
-	FVector ProxyExtent = ProxyScale * 100.0f;
+	FVector3f ProxyPosition = ComponentData.Origin;
+	FQuat4f   ProxyRotation = ComponentData.Transform.GetRotation();
+	FVector3f ProxyScale = ComponentData.Transform.GetScale3D();
+	FVector3f ProxyExtent = ProxyScale * 100.0f;
 
 	if (ProxyRotation.IsIdentity())
 	{
 		// This volume is not rotated, test it against the view frustum
 		// Skip this volume if it doesn't intersect the view frustum
-		return View.ViewFrustum.IntersectBox(ProxyPosition, ProxyExtent);
+		return View.ViewFrustum.IntersectBox(static_cast<FVector>(ProxyPosition), static_cast<FVector>(ProxyExtent));
 	}
 	else
 	{
@@ -202,9 +221,9 @@ bool FDDGIVolumeSceneProxy::IntersectsViewFrustum(const FViewInfo& View)
 		// This volume is rotated, transform the view frustum so the volume's
 		// oriented bounding box becomes an axis-aligned bounding box.
 		FConvexVolume TransformedViewFrustum;
-		FMatrix FrustumTransform = FTranslationMatrix::Make(-ProxyPosition)
-			* FRotationMatrix::Make(ProxyRotation)
-			* FTranslationMatrix::Make(ProxyPosition);
+		FMatrix FrustumTransform = FTranslationMatrix::Make(-static_cast<FVector>(ProxyPosition))
+			* FRotationMatrix::Make(static_cast<FQuat>(ProxyRotation))
+			* FTranslationMatrix::Make(static_cast<FVector>(ProxyPosition));
 
 		// Based on SetupViewFrustum()
 		if (View.SceneViewInitOptions.OverrideFarClippingPlaneDistance > 0.0f)
@@ -224,7 +243,7 @@ bool FDDGIVolumeSceneProxy::IntersectsViewFrustum(const FViewInfo& View)
 
 		// Test the transformed view frustum against the volume
 		// Skip this volume if it doesn't intersect the view frustum
-		return TransformedViewFrustum.IntersectBox(ProxyPosition, ProxyExtent);
+		return TransformedViewFrustum.IntersectBox(static_cast<FVector>(ProxyPosition), static_cast<FVector>(ProxyExtent));
 	}
 }
 
@@ -237,6 +256,7 @@ void FDDGIVolumeSceneProxy::OnIrradianceOrDistanceBitsChange()
 	ENQUEUE_RENDER_COMMAND(DDGIOnIrradianceBitsChange)(
 		[IrradianceBits, DistanceBits](FRHICommandListImmediate& RHICmdList)
 		{
+			FMemMark Mark(FMemStack::Get());
 			FRDGBuilder GraphBuilder(RHICmdList);
 
 			for (FDDGIVolumeSceneProxy* DDGIProxy : AllProxiesReadyForRender_RenderThread)
@@ -252,26 +272,32 @@ void FDDGIVolumeSceneProxy::OnIrradianceOrDistanceBitsChange()
 
 void FDDGIVolumeSceneProxy::ReallocateSurfaces_RenderThread(FRHICommandListImmediate& RHICmdList, EDDGIIrradianceBits IrradianceBits, EDDGIDistanceBits DistanceBits)
 {
-	FIntPoint ProxyDims = ComponentData.Get2DProbeCount();
+	FIntPoint ProxyDims = Get2DProbeCount(ComponentData.ProbeCounts);
 
 	// Irradiance
 	{
-		int NumTexels = FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsIrradiance;
-		FIntPoint ProxyTexDims = ProxyDims * (NumTexels + 2);
-		EPixelFormat Format = (IrradianceBits == EDDGIIrradianceBits::n32 ) ? FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatIrradianceHighBitDepth : FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatIrradianceLowBitDepth;
+		FIntPoint ProxyTexDims = GetIrradianceTextureDimensions(ComponentData.ProbeCounts);
+		EPixelFormat Format = (IrradianceBits == EDDGIIrradianceBits::n32) ? FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatIrradianceHighBitDepth : FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatIrradianceLowBitDepth;
 
 		FPooledRenderTargetDesc Desc(FPooledRenderTargetDesc::Create2DDesc(ProxyTexDims, Format, FClearValueBinding::Transparent, TexCreate_None, TexCreate_ShaderResource | TexCreate_UAV , false));
+#if ENGINE_MAJOR_VERSION < 5
 		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesIrradiance, TEXT("DDGIIrradiance"), ERenderTargetTransience::NonTransient);
+#else
+		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesIrradiance, TEXT("DDGIIrradiance"));
+#endif
 	}
 
 	// Distance
 	{
-		int NumTexels = FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsDistance;
-		FIntPoint ProxyTexDims = ProxyDims * (NumTexels + 2);
+		FIntPoint ProxyTexDims = GetDistanceTextureDimensions(ComponentData.ProbeCounts);
 		EPixelFormat Format = (DistanceBits == EDDGIDistanceBits::n32) ? FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatDistanceHighBitDepth : FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatDistanceLowBitDepth;
 
 		FPooledRenderTargetDesc Desc(FPooledRenderTargetDesc::Create2DDesc(ProxyTexDims, Format, FClearValueBinding::Transparent, TexCreate_None, TexCreate_ShaderResource | TexCreate_UAV, false));
+#if ENGINE_MAJOR_VERSION < 5
 		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesDistance, TEXT("DDGIDistance"), ERenderTargetTransience::NonTransient);
+#else
+		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesDistance, TEXT("DDGIDistance"));
+#endif
 	}
 
 	// Offsets - only pay the cost of this resource if this volume is actually doing relocation
@@ -280,7 +306,11 @@ void FDDGIVolumeSceneProxy::ReallocateSurfaces_RenderThread(FRHICommandListImmed
 		EPixelFormat Format = FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatOffsets;
 
 		FPooledRenderTargetDesc Desc(FPooledRenderTargetDesc::Create2DDesc(ProxyDims, Format, FClearValueBinding::Transparent, TexCreate_None, TexCreate_ShaderResource | TexCreate_UAV, false));
+#if ENGINE_MAJOR_VERSION < 5
 		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesOffsets, TEXT("DDGIOffsets"), ERenderTargetTransience::NonTransient);
+#else
+		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesOffsets, TEXT("DDGIOffsets"));
+#endif
 	}
 	else
 	{
@@ -293,7 +323,11 @@ void FDDGIVolumeSceneProxy::ReallocateSurfaces_RenderThread(FRHICommandListImmed
 		EPixelFormat Format = FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatStates;
 
 		FPooledRenderTargetDesc Desc(FPooledRenderTargetDesc::Create2DDesc(ProxyDims, Format, FClearValueBinding::Transparent, TexCreate_None, TexCreate_ShaderResource | TexCreate_UAV, false));
+#if ENGINE_MAJOR_VERSION < 5
 		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesStates, TEXT("DDGIStates"), ERenderTargetTransience::NonTransient);
+#else
+		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesStates, TEXT("DDGIStates"));
+#endif
 	}
 	else
 	{
@@ -305,7 +339,11 @@ void FDDGIVolumeSceneProxy::ReallocateSurfaces_RenderThread(FRHICommandListImmed
 		EPixelFormat Format = FDDGIVolumeSceneProxy::FComponentData::c_pixelFormatScrollSpace;
 
 		FPooledRenderTargetDesc Desc(FPooledRenderTargetDesc::Create2DDesc(ProxyDims, Format, FClearValueBinding::Transparent, TexCreate_None, TexCreate_ShaderResource | TexCreate_UAV, false));
+#if ENGINE_MAJOR_VERSION < 5
 		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesSpace, TEXT("DDGIScrollSpace"), ERenderTargetTransience::NonTransient);
+#else
+		GRenderTargetPool.FindFreeElement(RHICmdList, Desc, ProbesSpace, TEXT("DDGIScrollSpace"));
+#endif
 	}
 	else
 	{
@@ -331,37 +369,97 @@ void FDDGIVolumeSceneProxy::ResetTextures_RenderThread(FRDGBuilder& GraphBuilder
 	}
 }
 
+void FDDGIVolumeSceneProxy::HandlePreWorldFinishDestroy(UWorld* InWorld)
+{
+	const void* SceneKey = InWorld;
+	ENQUEUE_RENDER_COMMAND(HandlePreWorldFinishDestroyCommand)(
+		[SceneKey](FRHICommandListImmediate& RHICmdList)
+		{
+			SceneRoundRobinValue.Remove(SceneKey);
+		}
+	);
+}
+
+FRenderQueryPoolRHIRef FDDGIVolumeSceneProxy::DDGIQueryPool;
+FLatentGPUTimerDDGI FDDGIVolumeSceneProxy::UpdateTimer(DDGIQueryPool);
+FRenderQueryPoolRHIRef FDDGIVolumeSceneProxy::DDGITotalQueryPool;
+FLatentGPUTimerDDGI FDDGIVolumeSceneProxy::TotalTimer(DDGITotalQueryPool);
+
 void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 	const FScene& Scene,
 	const FViewInfo& View,
 	FRDGBuilder& GraphBuilder,
-	FGlobalIlluminationExperimentalPluginResources& Resources)
+	FGlobalIlluminationPluginResources& Resources)
 {
 	// Early out if DDGI is disabled
 	if (!CVarUseDDGI.GetValueOnRenderThread()) return;
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	DECLARE_STATS_GROUP(TEXT("RTXGI Performance"), STATGROUP_RTXGI, STATCAT_Advanced);
+	uint32 samples_per_frame = 0;
+
+	if (!DDGIQueryPool.IsValid())
+	{
+		DDGIQueryPool = RHICreateRenderQueryPool(RQT_AbsoluteTime);
+		UpdateTimer.SetPool(DDGIQueryPool);
+
+		DDGITotalQueryPool = RHICreateRenderQueryPool(RQT_AbsoluteTime);
+		TotalTimer.SetPool(DDGITotalQueryPool);
+	}
+
+	AddPass(GraphBuilder, RDG_EVENT_NAME("RTXGI_TotalTimer_Begin"), [](FRHICommandListImmediate& RHICmdList)
+		{
+			TotalTimer.Begin(RHICmdList);
+		});
+#endif
+	DDGIVolumeUpdate::DDGIInitLoadedVolumes_RenderThread(GraphBuilder);
 
 	// Update DDGIVolumes when rendering a main view and when ray tracing is available.
 	// Other views can use DDGIVolumes for lighting, but don't need to update the volumes.
 	// This is especially true for situations like bIsSceneCapture, when bSceneCaptureUsesRayTracing is false, and it can make incorrect probe update results.
 	if (!View.bIsSceneCapture && !View.bIsReflectionCapture && !View.bIsPlanarReflection)
 	{
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		AddPass(GraphBuilder, RDG_EVENT_NAME("RTXGI_UpdateTimer_Begin"), [](FRHICommandListImmediate& RHICmdList)
+			{
+				UpdateTimer.Begin(RHICmdList);
+			});
+#endif
 		RDG_GPU_STAT_SCOPE(GraphBuilder, RTXGI_Update);
 		RDG_EVENT_SCOPE(GraphBuilder, "RTXGI Update");
 		DDGIVolumeUpdate::DDGIUpdatePerFrame_RenderThread(Scene, View, GraphBuilder);
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+		AddPass(GraphBuilder, RDG_EVENT_NAME("RTXGI_UpdateTimer_End"), [](FRHICommandListImmediate& RHICmdList)
+			{
+				UpdateTimer.End(RHICmdList);
+				UpdateTimer.Tick(RHICmdList);
+			});
+#endif
 	}
 
 	// Register the GBuffer textures with the render graph
+#if ENGINE_MAJOR_VERSION < 5
 	FRDGTextureRef GBufferATexture = GraphBuilder.RegisterExternalTexture(Resources.GBufferA);
 	FRDGTextureRef GBufferBTexture = GraphBuilder.RegisterExternalTexture(Resources.GBufferB);
 	FRDGTextureRef GBufferCTexture = GraphBuilder.RegisterExternalTexture(Resources.GBufferC);
 	FRDGTextureRef SceneDepthTexture = GraphBuilder.RegisterExternalTexture(Resources.SceneDepthZ);
 	FRDGTextureRef SceneColorTexture = GraphBuilder.RegisterExternalTexture(Resources.SceneColor);
+#else
+	FRDGTextureRef GBufferATexture = Resources.GBufferA;
+	FRDGTextureRef GBufferBTexture = Resources.GBufferB;
+	FRDGTextureRef GBufferCTexture = Resources.GBufferC;
+	FRDGTextureRef SceneDepthTexture = Resources.SceneDepthZ;
+	FRDGTextureRef SceneColorTexture = Resources.SceneColor;
+#endif
 	if (!View.bUsesLightingChannels) Resources.LightingChannelsTexture = nullptr;
 
 	float ScreenScale = FMath::Clamp(CVarLightingPassScale.GetValueOnRenderThread(), 0.25f, 1.0f);
 	uint32 ScaledViewSizeX = FMath::Max(1, FMath::CeilToInt(View.ViewRect.Size().X * ScreenScale));
 	uint32 ScaledViewSizeY = FMath::Max(1, FMath::CeilToInt(View.ViewRect.Size().Y * ScreenScale));
 	FIntPoint ScaledViewSize = FIntPoint(ScaledViewSizeX, ScaledViewSizeY);
+
+	uint32 ScaledViewOffsetX = FMath::CeilToInt(View.ViewRect.Min.X * ScreenScale);
+	uint32 ScaledViewOffsetY = FMath::CeilToInt(View.ViewRect.Min.Y * ScreenScale);
+	FIntPoint ScaledViewOffset = FIntPoint(ScaledViewOffsetX, ScaledViewOffsetY);
 
 	FRDGTextureDesc RTXGILightingPassOutputDesc = FRDGTextureDesc::Create2D(
 		ScaledViewSize,
@@ -380,9 +478,9 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 		// DDGIVolume and useful metadata
 		struct FProxyEntry
 		{
-			FVector Position;
-			FQuat Rotation;
-			FVector Scale;
+			FVector3f Position;
+			FQuat4f Rotation;
+			FVector3f Scale;
 			float Density;
 			uint32 lightingChannelMask;
 			const FDDGIVolumeSceneProxy* proxy;
@@ -402,9 +500,9 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 			if (!volumeProxy->IntersectsViewFrustum(View)) continue;
 
 			// Get the volume position, rotation, and scale
-			FVector ProxyPosition = volumeProxy->ComponentData.Origin;
-			FQuat   ProxyRotation = volumeProxy->ComponentData.Transform.GetRotation();
-			FVector ProxyScale = volumeProxy->ComponentData.Transform.GetScale3D();
+			FVector3f ProxyPosition = volumeProxy->ComponentData.Origin;
+			FQuat4f   ProxyRotation = volumeProxy->ComponentData.Transform.GetRotation();
+			FVector3f ProxyScale = volumeProxy->ComponentData.Transform.GetScale3D();
 
 			float ProxyDensity = float(volumeProxy->ComponentData.ProbeCounts.X * volumeProxy->ComponentData.ProbeCounts.Y * volumeProxy->ComponentData.ProbeCounts.Z) / (ProxyScale.X * ProxyScale.Y * ProxyScale.Z);
 			uint32 ProxyLightingChannelMask =
@@ -490,6 +588,15 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 			PassParameters->ShouldUsePreExposure = View.Family->EngineShowFlags.Tonemapper;
 			PassParameters->NumVolumes = numVolumes;
 
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+			DECLARE_DWORD_COUNTER_STAT(TEXT("Total Number of Volumes: "), TOTAL_VOLUME, STATGROUP_RTXGI);
+			SET_DWORD_STAT(TOTAL_VOLUME, numVolumes);
+
+			int32 selected_volume = CVarStatVolume.GetValueOnRenderThread();
+			DECLARE_DWORD_COUNTER_STAT(TEXT("Selected Volume Index:"), SELECTED_VOLUME, STATGROUP_RTXGI);
+			SET_DWORD_STAT(SELECTED_VOLUME, selected_volume);
+#endif
+
 			// Set the shader parameters for the relevant volumes
 			for (int32 volumeIndex = 0; volumeIndex < numVolumes; ++volumeIndex)
 			{
@@ -504,12 +611,12 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 
 				// Set the volume parameters
 				PassParameters->DDGIVolume[volumeIndex].Position = volumeProxy->ComponentData.Origin;
-				PassParameters->DDGIVolume[volumeIndex].Rotation = FVector4(volume.Rotation.X, volume.Rotation.Y, volume.Rotation.Z, volume.Rotation.W);
+				PassParameters->DDGIVolume[volumeIndex].Rotation = FVector4f(volume.Rotation.X, volume.Rotation.Y, volume.Rotation.Z, volume.Rotation.W);
 				PassParameters->DDGIVolume[volumeIndex].Radius = volume.Scale * 100.0f;
 				PassParameters->DDGIVolume[volumeIndex].LightingChannelMask = volume.lightingChannelMask;
 
-				FVector volumeSize = volumeProxy->ComponentData.Transform.GetScale3D() * 200.0f;
-				FVector probeGridSpacing;
+				FVector3f volumeSize = volumeProxy->ComponentData.Transform.GetScale3D() * 200.0f;
+				FVector3f probeGridSpacing;
 				probeGridSpacing.X = volumeSize.X / float(volumeProxy->ComponentData.ProbeCounts.X);
 				probeGridSpacing.Y = volumeSize.Y / float(volumeProxy->ComponentData.ProbeCounts.Y);
 				probeGridSpacing.Z = volumeSize.Z / float(volumeProxy->ComponentData.ProbeCounts.Z);
@@ -535,6 +642,28 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 
 				// Apply the lighting multiplier to artificially lighten or darken the indirect light from the volume
 				PassParameters->DDGIVolume[volumeIndex].IrradianceScalar /= volumeProxy->ComponentData.LightingMultiplier;
+				
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+				uint32 raysPerProbe = GetNumRaysPerProbe(volumeProxy->ComponentData.RaysPerProbe);
+				uint32 probeCountX = volumeProxy->ComponentData.ProbeCounts.X;
+				uint32 probeCountY = volumeProxy->ComponentData.ProbeCounts.Y;
+				uint32 probeCountZ = volumeProxy->ComponentData.ProbeCounts.Z;
+				int32 samples_per_volume = (probeCountX * probeCountY * probeCountZ) * raysPerProbe;
+				samples_per_frame += samples_per_volume;
+				if (CVarStatVolume.GetValueOnRenderThread() == volumeIndex || volumeIndex == numVolumes)
+				{
+					DECLARE_DWORD_COUNTER_STAT(TEXT("Num Samples (selected):"), SAMPLES_PER_VOLUME, STATGROUP_RTXGI);
+					SET_DWORD_STAT(SAMPLES_PER_VOLUME, samples_per_volume);
+					DECLARE_DWORD_COUNTER_STAT(TEXT("Probe Count X (selected):"), PROBE_COUNT_X, STATGROUP_RTXGI);
+					SET_DWORD_STAT(PROBE_COUNT_X, probeCountX);
+					DECLARE_DWORD_COUNTER_STAT(TEXT("Probe Count Y (selected):"), PROBE_COUNT_Y, STATGROUP_RTXGI);
+					SET_DWORD_STAT(PROBE_COUNT_Y, probeCountY);
+					DECLARE_DWORD_COUNTER_STAT(TEXT("Probe Count Z (selected):"), PROBE_COUNT_Z, STATGROUP_RTXGI);
+					SET_DWORD_STAT(PROBE_COUNT_Z, probeCountZ);
+					DECLARE_DWORD_COUNTER_STAT(TEXT("Rays Per Probe (selected):"), RAYS_PER_PROBE, STATGROUP_RTXGI);
+					SET_DWORD_STAT(RAYS_PER_PROBE, raysPerProbe);
+				}
+#endif
 			}
 
 			// When there are fewer relevant volumes than the maximum supported, set the empty volume texture slots to dummy values
@@ -555,7 +684,10 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 				PassParameters->LightingPassUAV = LightingPassUAV;
 			}
 
-			PassParameters->ScaledViewSizeAndInvSize = FVector4(ScaledViewSize.X, ScaledViewSize.Y, 1.0f / ScaledViewSize.X, 1.0f / ScaledViewSize.Y);
+			PassParameters->ScaledViewSizeAndInvSize = FVector4f(ScaledViewSize.X, ScaledViewSize.Y, 1.0f / ScaledViewSize.X, 1.0f / ScaledViewSize.Y);
+			// view offset needs to compensate for view position in output buffer if scaling is off
+			// if scaling is on, lighting renders to a view-specific intermediate target, so no compensation is needed
+			PassParameters->ScaledViewOffset = CVarLightingPassScale.GetValueOnRenderThread() == 1.0f ? ScaledViewOffset : FIntPoint(0, 0);
 			PassParameters->ViewUniformBuffer = View.ViewUniformBuffer;
 
 			// Currently hardcoded as 8
@@ -598,7 +730,7 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 		PassParameters->PointClampSampler = TStaticSamplerState<SF_Point, AM_Clamp, AM_Clamp, AM_Clamp>::GetRHI();
 		PassParameters->LinearClampSampler = TStaticSamplerState<SF_Trilinear, AM_Clamp, AM_Clamp, AM_Clamp>::GetRHI();
 		PassParameters->RelativeDistanceThreshold = CVarRelativeDistanceThreshold.GetValueOnRenderThread();
-		PassParameters->InputViewSizeAndInvSize = FVector4(ScaledViewSize.X, ScaledViewSize.Y, 1.0f / ScaledViewSize.X, 1.0f / ScaledViewSize.Y);;
+		PassParameters->InputViewSizeAndInvSize = FVector4f(ScaledViewSize.X, ScaledViewSize.Y, 1.0f / ScaledViewSize.X, 1.0f / ScaledViewSize.Y);;
 		PassParameters->NormalPower = CVarNormalPower.GetValueOnRenderThread();
 		PassParameters->ViewUniformBuffer = View.ViewUniformBuffer;
 
@@ -616,6 +748,41 @@ void FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread(
 			FIntVector(numGroupsX, numGroupsY, 1)
 		);
 	}
+#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
+	AddPass(GraphBuilder, RDG_EVENT_NAME("RTXGI_TotalTimer_End"), [](FRHICommandListImmediate& RHICmdList)
+			{
+				TotalTimer.End(RHICmdList);
+				TotalTimer.Tick(RHICmdList);
+			});
+	float totalRTXGITime = TotalTimer.GetTimeMS();
+	DECLARE_DWORD_COUNTER_STAT(TEXT("Samples Per Frame:"), SAMPLES_PER_FRAME, STATGROUP_RTXGI);
+	SET_DWORD_STAT(SAMPLES_PER_FRAME, samples_per_frame);
+	float rtxgiUpdateTime = UpdateTimer.GetTimeMS();
+
+	float samplesPerMilli = samples_per_frame / rtxgiUpdateTime;
+	DECLARE_FLOAT_COUNTER_STAT(TEXT("RTXGI Samples Per Millisecond:"), SAMPLES_PER_MILLI, STATGROUP_RTXGI);
+	SET_FLOAT_STAT(SAMPLES_PER_MILLI, samplesPerMilli);
+
+	//GPU Timing code from UnrealEdMisc.cpp
+	uint32 GPUCycles = RHIGetGPUFrameCycles();
+	double RawGPUFrameTime = FPlatformTime::ToMilliseconds(GPUCycles);
+
+	float totalGpuTime = RawGPUFrameTime;
+	float timeWithoutRtxgi = totalGpuTime - totalRTXGITime;
+	float samplesPer60 = samplesPerMilli * (16.67 - timeWithoutRtxgi);
+	if (samplesPer60 < 0)
+	{
+		samplesPer60 = 0;
+	}
+	DECLARE_FLOAT_COUNTER_STAT(TEXT("RTXGI Samples Per Frame 60hz:"), SAMPLES_PER_FRAME_60, STATGROUP_RTXGI);
+	SET_FLOAT_STAT(SAMPLES_PER_FRAME_60, samplesPer60);
+	DECLARE_FLOAT_COUNTER_STAT(TEXT("RTXGI GPU Time (ms):"), RTXGI_GPU_TIME, STATGROUP_RTXGI);
+	SET_FLOAT_STAT(RTXGI_GPU_TIME, totalRTXGITime);
+	DECLARE_FLOAT_COUNTER_STAT(TEXT("Total GPU Frametime (ms):"), FRAMETIME_TOTAL, STATGROUP_RTXGI);
+	SET_FLOAT_STAT(FRAMETIME_TOTAL, totalGpuTime);
+	DECLARE_FLOAT_COUNTER_STAT(TEXT("Frametime Without RTXGI (ms):"), FRAMETIME_NO_RTXGI, STATGROUP_RTXGI);
+	SET_FLOAT_STAT(FRAMETIME_NO_RTXGI, timeWithoutRtxgi);
+#endif
 }
 
 UDDGIVolumeComponent::UDDGIVolumeComponent(const FObjectInitializer& ObjectInitializer)
@@ -680,7 +847,11 @@ static FDDGITexturePixels GetTexturePixelsStep1_RenderThread(FRHICommandListImme
 		textureGPU->GetFormat(),
 		1,
 		1,
+#if ENGINE_MAJOR_VERSION < 5
 		TexCreate_ShaderResource | TexCreate_Transient,
+#else
+		TexCreate_ShaderResource,
+#endif
 		ERHIAccess::CopyDest,
 		createInfo);
 
@@ -753,7 +924,11 @@ static void LoadFDDGITexturePixels(FArchive& Ar, FDDGITexturePixels& texturePixe
 		expectedPixelFormat,
 		1,
 		1,
+#if ENGINE_MAJOR_VERSION < 5
 		TexCreate_ShaderResource | TexCreate_Transient,
+#else
+		TexCreate_ShaderResource,
+#endif
 		createInfo);
 
 	// Copy the texture's data to the staging buffer
@@ -840,10 +1015,17 @@ void UDDGIVolumeComponent::Serialize(FArchive& Ar)
 					ENQUEUE_RENDER_COMMAND(DDGISaveTexStep1)(
 						[&Irradiance, &Distance, &Offsets, &States, proxy](FRHICommandListImmediate& RHICmdList)
 						{
+#if ENGINE_MAJOR_VERSION < 5
 							Irradiance = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesIrradiance->GetTargetableRHI());
 							Distance = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesDistance->GetTargetableRHI());
 							Offsets = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesOffsets ? proxy->ProbesOffsets->GetTargetableRHI() : nullptr);
 							States = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesStates ? proxy->ProbesStates->GetTargetableRHI() : nullptr);
+#else
+							Irradiance = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesIrradiance->GetRHI());
+							Distance = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesDistance->GetRHI());
+							Offsets = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesOffsets ? proxy->ProbesOffsets->GetRHI() : nullptr);
+							States = GetTexturePixelsStep1_RenderThread(RHICmdList, proxy->ProbesStates ? proxy->ProbesStates->GetRHI() : nullptr);
+#endif
 						}
 					);
 					FlushRenderingCommands();
@@ -916,6 +1098,22 @@ void UDDGIVolumeComponent::UpdateRenderThreadData()
 		ComponentData.RaysPerProbe = RaysPerProbe;
 		ComponentData.ProbeMaxRayDistance = ProbeMaxRayDistance;
 		ComponentData.LightingChannels = LightingChannels;
+
+		// If the passed in ProbeCounts creates a radiance and distance texture that is too large then revert to previous valid probe counts
+		// Or if the distance texture is too large then revert to previous valid probe counts as well
+		volatile uint32 maxTextureSize = GetMax2DTextureDimension();
+		FIntPoint RadianceAndDistanceTextureAtlasDimensions = GetRadianceAndDistanceTextureDimensions(RaysPerProbe, ProbeCounts);
+		FIntPoint DistanceTextureDimensions = GetDistanceTextureDimensions(ProbeCounts);
+		if (uint32(RadianceAndDistanceTextureAtlasDimensions.X) > maxTextureSize || uint32(RadianceAndDistanceTextureAtlasDimensions.Y) > maxTextureSize ||
+			uint32(DistanceTextureDimensions.X) > maxTextureSize || uint32(DistanceTextureDimensions.Y) > maxTextureSize)
+		{
+			ProbeCounts = PrevProbeCounts;
+		}
+		else
+		{
+			PrevProbeCounts = ProbeCounts;
+		}
+
 		ComponentData.ProbeCounts = ProbeCounts;
 		ComponentData.ProbeDistanceExponent = probeDistanceExponent;
 		ComponentData.ProbeIrradianceEncodingGamma = probeIrradianceEncodingGamma;
@@ -932,7 +1130,7 @@ void UDDGIVolumeComponent::UpdateRenderThreadData()
 		ComponentData.ProbeMinFrontfaceDistance = ProbeRelocation.ProbeMinFrontfaceDistance;
 		ComponentData.EnableProbeRelocation = ProbeRelocation.AutomaticProbeRelocation;
 		ComponentData.EnableProbeScrolling = ScrollProbesInfinitely;
-		ComponentData.EnableProbeVisulization = VisualizeProbes;
+		ComponentData.EnableProbeVisualization = VisualizeProbes;
 		ComponentData.EnableVolume = EnableVolume;
 		ComponentData.IrradianceScalar = IrradianceScalar;
 		ComponentData.EmissiveMultiplier = EmissiveMultiplier;
@@ -948,7 +1146,7 @@ void UDDGIVolumeComponent::UpdateRenderThreadData()
 			// Useful for computing GI around a moving object, e.g. characters.
 			// NB: scrolling probes can be disruptive when recursive probe sampling is enabled and the volume is small. Sudden changes in scrolled probes will propogate to nearby probes!
 			FVector CurrentOrigin = GetOwner()->GetTransform().GetLocation();
-			FVector MovementDelta = CurrentOrigin - LastOrigin;
+			FVector MovementDelta = CurrentOrigin - static_cast<FVector>(LastOrigin);
 
 			FVector ProbeGridSpacing;
 			FVector VolumeSize = GetOwner()->GetTransform().GetScale3D() * 200.f;
@@ -998,44 +1196,26 @@ void UDDGIVolumeComponent::UpdateRenderThreadData()
 
 			// Set the volume origin and scale (rotation not allowed)
 			ComponentData.Origin = LastOrigin;
-			ComponentData.Transform.SetScale3D(GetOwner()->GetTransform().GetScale3D());
+			ComponentData.Transform.SetScale3D(static_cast<FVector3f>(GetOwner()->GetTransform().GetScale3D()));
+
+			// Force ISV volume to be updated if ProbeScrollOffsets for one of axes was changed.
+			if (ComponentData.ProbeScrollOffsets.X != PrevProbeScrollOffsets.X)
+				ComponentData.bForceUpdate = true;
+			if (ComponentData.ProbeScrollOffsets.Y != PrevProbeScrollOffsets.Y)
+				ComponentData.bForceUpdate = true;
+			if (ComponentData.ProbeScrollOffsets.Z != PrevProbeScrollOffsets.Z)
+				ComponentData.bForceUpdate = true;
+
+			PrevProbeScrollOffsets = ComponentData.ProbeScrollOffsets;
 		}
 		else
 		{
 			// Finite moveable volume
 			// Transform the volume to stay aligned with its parent.
 			// Useful for spaces that move, e.g. a ship or train car.
-			ComponentData.Transform = GetOwner()->GetTransform();
-			ComponentData.Origin = LastOrigin = GetOwner()->GetTransform().GetLocation();
+			ComponentData.Transform = static_cast<FTransform3f>(GetOwner()->GetTransform());
+			ComponentData.Origin = LastOrigin = static_cast<FVector3f>(GetOwner()->GetTransform().GetLocation());
 			ComponentData.ProbeScrollOffsets = FIntVector{ 0, 0, 0 };
-		}
-
-		// If the ProbeCounts are too large to make textures, let's not update the render thread data to avoid a crash.
-		// Everything is ok with not getting an update, ever, so this is safe.
-		{
-			volatile uint32 maxTextureSize = GetMax2DTextureDimension();
-
-			// DDGIRadiance
-			if (uint32(ProbeCounts.X * ProbeCounts.Y * ProbeCounts.Z) > maxTextureSize)
-				return;
-
-			FIntPoint ProxyDims = ComponentData.Get2DProbeCount();
-
-			// DDGIIrradiance
-			{
-				int numTexels = FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsIrradiance;
-				FIntPoint ProxyTexDims = ProxyDims * (numTexels + 2);
-				if (uint32(ProxyTexDims.X) > maxTextureSize || uint32(ProxyTexDims.Y) > maxTextureSize)
-					return;
-			}
-
-			// DDGIDistance
-			{
-				int numTexels = FDDGIVolumeSceneProxy::FComponentData::c_NumTexelsDistance;
-				FIntPoint ProxyTexDims = ProxyDims * (numTexels + 2);
-				if (uint32(ProxyTexDims.X) > maxTextureSize || uint32(ProxyTexDims.Y) > maxTextureSize)
-					return;
-			}
 		}
 
 		FDDGIVolumeSceneProxy* DDGIProxy = SceneProxy;
@@ -1048,6 +1228,7 @@ void UDDGIVolumeComponent::UpdateRenderThreadData()
 		ENQUEUE_RENDER_COMMAND(UpdateGIVolumeTransformCommand)(
 			[DDGIProxy, ComponentData, TextureLoadContext, IrradianceBits, DistanceBits](FRHICommandListImmediate& RHICmdList)
 			{
+				FMemMark Mark(FMemStack::Get());
 				FRDGBuilder GraphBuilder(RHICmdList);
 
 				bool needReallocate =
@@ -1083,26 +1264,31 @@ void UDDGIVolumeComponent::EnableVolumeComponent(bool enabled)
 
 void UDDGIVolumeComponent::Startup()
 {
+	FDDGIVolumeSceneProxy::OnPreWorldFinishDestroyHandle = FWorldDelegates::OnPreWorldFinishDestroy.AddStatic(FDDGIVolumeSceneProxy::HandlePreWorldFinishDestroy);
+
+	FGlobalIlluminationPluginDelegates::FRenderDiffuseIndirectLight& RDILDelegate = FGlobalIlluminationPluginDelegates::RenderDiffuseIndirectLight();
+	FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle = RDILDelegate.AddStatic(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread);
+
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	FGlobalIlluminationExperimentalPluginDelegates::FRenderDiffuseIndirectVisualizations& RVDelegate = FGlobalIlluminationExperimentalPluginDelegates::RenderDiffuseIndirectVisualizations();
+	FGlobalIlluminationPluginDelegates::FRenderDiffuseIndirectVisualizations& RVDelegate = FGlobalIlluminationPluginDelegates::RenderDiffuseIndirectVisualizations();
 	FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizationsHandle = RVDelegate.AddStatic(FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizations_RenderThread);
 #endif
-
-	FGlobalIlluminationExperimentalPluginDelegates::FRenderDiffuseIndirectLight& RDILDelegate = FGlobalIlluminationExperimentalPluginDelegates::RenderDiffuseIndirectLight();
-	FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle = RDILDelegate.AddStatic(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLight_RenderThread);
 }
 
 void UDDGIVolumeComponent::Shutdown()
 {
+	check(FDDGIVolumeSceneProxy::OnPreWorldFinishDestroyHandle.IsValid());
+	FWorldDelegates::OnPreWorldFinishDestroy.Remove(FDDGIVolumeSceneProxy::OnPreWorldFinishDestroyHandle);
+
+	FGlobalIlluminationPluginDelegates::FRenderDiffuseIndirectLight& RDILDelegate = FGlobalIlluminationPluginDelegates::RenderDiffuseIndirectLight();
+	check(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle.IsValid());
+	RDILDelegate.Remove(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle);
+
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	FGlobalIlluminationExperimentalPluginDelegates::FRenderDiffuseIndirectVisualizations& RVDelegate = FGlobalIlluminationExperimentalPluginDelegates::RenderDiffuseIndirectVisualizations();
+	FGlobalIlluminationPluginDelegates::FRenderDiffuseIndirectVisualizations& RVDelegate = FGlobalIlluminationPluginDelegates::RenderDiffuseIndirectVisualizations();
 	check(FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizationsHandle.IsValid());
 	RVDelegate.Remove(FDDGIVolumeSceneProxy::RenderDiffuseIndirectVisualizationsHandle);
 #endif
-
-	FGlobalIlluminationExperimentalPluginDelegates::FRenderDiffuseIndirectLight& RDILDelegate = FGlobalIlluminationExperimentalPluginDelegates::RenderDiffuseIndirectLight();
-	check(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle.IsValid());
-	RDILDelegate.Remove(FDDGIVolumeSceneProxy::RenderDiffuseIndirectLightHandle);
 }
 
 bool UDDGIVolumeComponent::Exec(UWorld* InWorld, const TCHAR* Cmd, FOutputDevice& Ar)
@@ -1138,9 +1324,11 @@ bool UDDGIVolumeComponent::CanEditChange(const FProperty* InProperty) const
 
 void UDDGIVolumeComponent::DDGIClearVolumes()
 {
+#if WITH_RTXGI
 	ENQUEUE_RENDER_COMMAND(DDGIClearVolumesCommand)(
 		[](FRHICommandListImmediate& RHICmdList)
 		{
+			FMemMark Mark(FMemStack::Get());
 			FRDGBuilder GraphBuilder(RHICmdList);
 
 			for (FDDGIVolumeSceneProxy* DDGIProxy : FDDGIVolumeSceneProxy::AllProxiesReadyForRender_RenderThread)
@@ -1151,6 +1339,7 @@ void UDDGIVolumeComponent::DDGIClearVolumes()
 			GraphBuilder.Execute();
 		}
 	);
+#endif
 }
 
 void UDDGIVolumeComponent::SendRenderDynamicData_Concurrent()
@@ -1199,10 +1388,17 @@ void UDDGIVolumeComponent::DestroyRenderState_Concurrent()
 					else
 					{
 						ComponentLoadContext.ReadyForLoad = true;
+#if ENGINE_MAJOR_VERSION < 5
 						ComponentLoadContext.Irradiance = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesIrradiance->GetTargetableRHI());
 						ComponentLoadContext.Distance = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesDistance->GetTargetableRHI());
 						ComponentLoadContext.Offsets = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesOffsets ? DDGIProxy->ProbesOffsets->GetTargetableRHI() : nullptr);
 						ComponentLoadContext.States = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesStates ? DDGIProxy->ProbesStates->GetTargetableRHI() : nullptr);
+#else
+						ComponentLoadContext.Irradiance = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesIrradiance->GetRHI());
+						ComponentLoadContext.Distance = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesDistance->GetRHI());
+						ComponentLoadContext.Offsets = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesOffsets ? DDGIProxy->ProbesOffsets->GetRHI() : nullptr);
+						ComponentLoadContext.States = GetTexturePixelsStep1_RenderThread(RHICmdList, DDGIProxy->ProbesStates ? DDGIProxy->ProbesStates->GetRHI() : nullptr);
+#endif
 					}
 				}
 
@@ -1219,11 +1415,13 @@ void UDDGIVolumeComponent::DestroyRenderState_Concurrent()
 
 void UDDGIVolumeComponent::ClearProbeData()
 {
+#if WITH_RTXGI
 	FDDGIVolumeSceneProxy* DDGIProxy = SceneProxy;
 
 	ENQUEUE_RENDER_COMMAND(DDGIClearProbeData)(
 		[DDGIProxy](FRHICommandListImmediate& RHICmdList)
 		{
+			FMemMark Mark(FMemStack::Get());
 			FRDGBuilder GraphBuilder(RHICmdList);
 
 			DDGIProxy->ResetTextures_RenderThread(GraphBuilder);
@@ -1231,42 +1429,173 @@ void UDDGIVolumeComponent::ClearProbeData()
 			GraphBuilder.Execute();
 		}
 	);
+#endif
 }
 
 void UDDGIVolumeComponent::ToggleVolume(bool IsVolumeEnabled)
 {
+#if WITH_RTXGI
 	EnableVolumeComponent(IsVolumeEnabled);
+#endif
+}
+
+float UDDGIVolumeComponent::GetUpdatePriority() const
+{
+#if WITH_RTXGI
+	return UpdatePriority;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetUpdatePriority(float NewUpdatePriority)
+{
+#if WITH_RTXGI
+	UpdatePriority = NewUpdatePriority;
+	MarkRenderDynamicDataDirty();
+#endif
+}
+
+float UDDGIVolumeComponent::GetLightingPriority() const
+{
+#if WITH_RTXGI
+	return LightingPriority;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetLightingPriority(float NewLightingPriority)
+{
+#if WITH_RTXGI
+	LightingPriority = NewLightingPriority;
+	MarkRenderDynamicDataDirty();
+#endif
+}
+
+float UDDGIVolumeComponent::GetBlendingDistance() const
+{
+#if WITH_RTXGI
+	return BlendingDistance;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetBlendingDistance(float NewBlendingDistance)
+{
+#if WITH_RTXGI
+	BlendingDistance = NewBlendingDistance;
+	MarkRenderDynamicDataDirty();
+#endif
+}
+
+float UDDGIVolumeComponent::GetBlendingCutoffDistance() const
+{
+#if WITH_RTXGI
+	return BlendingCutoffDistance;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetBlendingCutoffDistance(float NewBlendingCutoffDistance)
+{
+#if WITH_RTXGI
+	BlendingCutoffDistance = NewBlendingCutoffDistance;
+	MarkRenderDynamicDataDirty();
+#endif
 }
 
 float UDDGIVolumeComponent::GetIrradianceScalar() const
 {
+#if WITH_RTXGI
 	return IrradianceScalar;
+#else
+	return 0.0f;
+#endif
 }
 
 void UDDGIVolumeComponent::SetIrradianceScalar(float NewIrradianceScalar)
 {
+#if WITH_RTXGI
 	IrradianceScalar = NewIrradianceScalar;
 	MarkRenderDynamicDataDirty();
+#endif
+}
+
+float UDDGIVolumeComponent::GetViewBias() const
+{
+#if WITH_RTXGI
+	return ViewBias;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetViewBias(float NewViewBias)
+{
+#if WITH_RTXGI
+	ViewBias = NewViewBias;
+	MarkRenderDynamicDataDirty();
+#endif
+}
+
+float UDDGIVolumeComponent::GetNormalBias() const
+{
+#if WITH_RTXGI
+	return NormalBias;
+#else
+	return 0.0f;
+#endif
+}
+
+void UDDGIVolumeComponent::SetNormalBias(float NewNormalBias)
+{
+#if WITH_RTXGI
+	NormalBias = NewNormalBias;
+	MarkRenderDynamicDataDirty();
+#endif
 }
 
 float UDDGIVolumeComponent::GetEmissiveMultiplier() const
 {
+#if WITH_RTXGI
 	return EmissiveMultiplier;
+#else
+	return 0.0f;
+#endif
 }
 
 void UDDGIVolumeComponent::SetEmissiveMultiplier(float NewEmissiveMultiplier)
 {
+#if WITH_RTXGI
 	EmissiveMultiplier = NewEmissiveMultiplier;
 	MarkRenderDynamicDataDirty();
+#endif
 }
 
 float UDDGIVolumeComponent::GetLightMultiplier() const
 {
+#if WITH_RTXGI
 	return LightMultiplier;
+#else
+	return 0.0f;
+#endif
 }
 
 void UDDGIVolumeComponent::SetLightMultiplier(float NewLightMultiplier)
 {
+#if WITH_RTXGI
 	LightMultiplier = NewLightMultiplier;
 	MarkRenderDynamicDataDirty();
+#endif
+}
+
+void UDDGIVolumeComponent::SetProbesVisualization(bool IsProbesVisualized)
+{
+#if WITH_RTXGI
+	VisualizeProbes = IsProbesVisualized;
+	MarkRenderDynamicDataDirty();
+#endif
 }

@@ -97,8 +97,20 @@ void DDGIProbeBlendingCS(uint3 DispatchThreadID : SV_DispatchThreadID, uint Grou
     prevProbeSpace.x = DDGIProbeScrollSpace[texelPosition].x & 0x01;
     prevProbeSpace.y = (DDGIProbeScrollSpace[texelPosition].x & 0x02) >> 1;
     prevProbeSpace.z = (DDGIProbeScrollSpace[texelPosition].x & 0x04) >> 2;
+
+    uint3 probeSpace = uint3(0, 0, 0);
+
+    int3 probeGridCoord = DDGIGetProbeCoords(probeIndex, DDGIVolume.probeGridCounts);
+    probeSpace = (probeGridCoord + DDGIVolume.probeScrollOffsets) / (DDGIVolume.probeGridCounts);
+    probeSpace = probeSpace % 2;
+
+#if RTXGI_DDGI_PARTIAL_UPDATE_ISV
+    if(prevProbeSpace.x == probeSpace.x && prevProbeSpace.y == probeSpace.y && prevProbeSpace.z == probeSpace.z)
+        exitEarly = true;
+#endif
 #endif
 
+#if !RTXGI_DDGI_PARTIAL_UPDATE_ISV
     // Handle round robin updating.
     // If this probe is outside of the window for updating, bail out.
     [branch] if (!exitEarly)
@@ -108,6 +120,7 @@ void DDGIProbeBlendingCS(uint3 DispatchThreadID : SV_DispatchThreadID, uint Grou
         if (probeRRIndex >= ProbeIndexStart + ProbeIndexCount)
             exitEarly = true;
     }
+#endif
 
     uint2 probeTexCoords = 0;
 
@@ -258,7 +271,7 @@ void DDGIProbeBlendingCS(uint3 DispatchThreadID : SV_DispatchThreadID, uint Grou
     #else // !RTXGI_DDGI_BLEND_RADIANCE
 
         // Initialize the probe hit distance to three quarters of the distance of the grid cell diagonal
-        float probeMaxRayDistance = length(DDGIVolume.probeGridSpacing) * 0.75f;
+        float probeMaxRayDistance = length(DDGIVolume.probeGridSpacing) * 1.5f;
 
         // Increase or decrease the filtered distance value's "sharpness"
         weight = pow(weight, DDGIVolume.probeDistanceExponent);
@@ -291,12 +304,6 @@ void DDGIProbeBlendingCS(uint3 DispatchThreadID : SV_DispatchThreadID, uint Grou
     float3 previous = DDGIVolumeProbeDataUAV[probeTexCoords].rgb;
 
 #if RTXGI_DDGI_INFINITE_SCROLLING_VOLUME
-    uint3 probeSpace = uint3(0, 0, 0);
-
-    int3 probeGridCoord = DDGIGetProbeCoords(probeIndex, DDGIVolume.probeGridCounts);
-    probeSpace = (probeGridCoord + DDGIVolume.probeScrollOffsets) / (DDGIVolume.probeGridCounts);
-    probeSpace = probeSpace % 2;
-
 #if (RTXGI_DDGI_BLEND_RADIANCE == 0) // distance blend is after irradiance blend. so write only in distance blend.
     if (DispatchThreadID.x % PROBE_NUM_TEXELS == 0 && DispatchThreadID.y % PROBE_NUM_TEXELS== 0)
     {

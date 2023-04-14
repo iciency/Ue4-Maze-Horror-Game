@@ -31,7 +31,7 @@ public class RTXGIEditor : ModuleRules
 			"SlateCore",
 			"UnrealEd",
 			"PlacementMode",
-			"RTXGI",
+			"RTXGI"
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[]

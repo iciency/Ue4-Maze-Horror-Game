@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.1.40",
+	"Version": 6,
+	"VersionName": "1.1.50",
 	"FriendlyName": "NVIDIA RTX Global Illumination",
 	"Description": "Real-Time Ray Traced Global Illumination",
 	"Category": "Rendering",
@@ -10,18 +10,14 @@
 	"DocsURL": "",
 	"MarketplaceURL": "",
 	"SupportURL": "mailto:rtxgi-support-service@nvidia.com",
-	"EnabledByDefault": false,
+	"EngineVersion": "4.27.0",
 	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"Installed": false,
+	"Installed": true,
 	"Modules": [
 		{
 			"Name": "RTXGI",
 			"Type": "Runtime",
-			"LoadingPhase": "PostConfigInit",
-			"WhitelistPlatforms": [
-				"Win64"
-			]
+			"LoadingPhase": "PostConfigInit"
 		},
 		{
 			"Name": "RTXGIEditor",

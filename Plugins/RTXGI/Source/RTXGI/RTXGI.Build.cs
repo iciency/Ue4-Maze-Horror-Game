@@ -18,9 +18,17 @@ public class RTXGI : ModuleRules
 		get { return ModuleDirectory; }
 	}
 
+	protected virtual bool IsSupportedPlatform(ReadOnlyTargetRules Target)
+	{
+		return Target.Platform == UnrealTargetPlatform.Win64;
+	}
+
 	public RTXGI(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+
+		bool bPlatformSupportsRTXGI = IsSupportedPlatform(Target);
+		PublicDefinitions.Add("WITH_RTXGI=" + (bPlatformSupportsRTXGI ? '1' : '0'));
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
@@ -32,16 +40,16 @@ public class RTXGI : ModuleRules
 			"RHI",
 		});
 
-		PrivateIncludePaths.AddRange(new string[]
-		{
-			EngineDirectory + "/Source/Runtime/Renderer/Private",
-			EngineDirectory + "/Source/Runtime/RenderCore/Public",
-		});
-
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
 			"Projects"
+		});
+
+		PrivateIncludePaths.AddRange(new string[]
+		{
+			EngineDirectory + "/Source/Runtime/Renderer/Private",
+			EngineDirectory + "/Source/Runtime/RenderCore/Public",
 		});
 
 		PublicIncludePaths.AddRange(new string[]

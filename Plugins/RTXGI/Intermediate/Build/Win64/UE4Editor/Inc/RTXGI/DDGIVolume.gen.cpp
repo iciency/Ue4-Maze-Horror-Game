@@ -55,6 +55,7 @@ void EmptyLinkFunctionForGeneratedCodeDDGIVolume() {}
 	};
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_ADDGIVolume_Statics::Class_MetaDataParams[] = {
+		{ "DisplayName", "RTXGI DDGI Volume" },
 		{ "HideCategories", "Navigation Physics Collision Rendering Tags Cooking Replication Input Actor HLOD Mobile LOD" },
 		{ "IncludePath", "DDGIVolume.h" },
 		{ "ModuleRelativePath", "Public/DDGIVolume.h" },
@@ -111,7 +112,7 @@ void EmptyLinkFunctionForGeneratedCodeDDGIVolume() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(ADDGIVolume, 974609651);
+	IMPLEMENT_CLASS(ADDGIVolume, 2495736056);
 	template<> RTXGI_API UClass* StaticClass<ADDGIVolume>()
 	{
 		return ADDGIVolume::StaticClass();

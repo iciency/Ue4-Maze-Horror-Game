@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2019-2021, NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2019-2022, NVIDIA CORPORATION.  All rights reserved.
 *
 * NVIDIA CORPORATION and its licensors retain all intellectual property
 * and proprietary rights in and to this software, related documentation
@@ -30,6 +30,7 @@ SamplerState        PointClampSampler;
 SamplerState        LinearClampSampler;
 
 float4              ScaledViewSizeAndInvSize;
+int2                ScaledViewOffset;
 uint                ShouldUsePreExposure;
 uint                NumVolumes;
 
@@ -133,25 +134,27 @@ float4 ApplyVolumeLightingContribution(
     return LightWeight;
 }
 
-#define NUM_THREADS 8
-
-[numthreads(NUM_THREADS, NUM_THREADS, 1)]
+[numthreads(8, 8, 1)]
 void MainCS(uint3 DispatchThreadID : SV_DispatchThreadID)
 {
-    int2 PixelIndex = (DispatchThreadID.xy);
-    float2 ScreenUV = (float2(PixelIndex) + .5) * float2(ScaledViewSizeAndInvSize.zw);
+    int2 PixelIndex = (DispatchThreadID.xy) + ScaledViewOffset;
+    float2 ViewUV = (float2(DispatchThreadID.xy) + .5) * float2(ScaledViewSizeAndInvSize.zw);
 
     // Calculate vector going through the center of appropriate GBuffer pixel
-    int2 GBufferNearestPixelIndex = int2(ScreenUV * View.ViewSizeAndInvSize.xy);
+    int2 GBufferNearestPixelIndex = int2(ViewUV * View.ViewSizeAndInvSize.xy);
     float2 GBufferNearestUV = (float2(GBufferNearestPixelIndex) + .5) * View.ViewSizeAndInvSize.zw;
     float4 Position = float4(GBufferNearestUV * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
     float3 InScreenVector = mul(float4(Position.xy, 1, 0), View.ScreenToTranslatedWorld).xyz;
 
     // Get information about our pixel
-    float2 BufferUV = ScreenUV * View.ViewSizeAndInvSize.xy * View.BufferSizeAndInvSize.zw;
+    float2 BufferUV = (ViewUV * View.ViewSizeAndInvSize.xy + View.ViewRectMin.xy) * View.BufferSizeAndInvSize.zw;
     float DeviceZ = DepthTexture.SampleLevel(PointClampSampler, BufferUV, 0).r;
     float SceneDepth = ConvertFromDeviceZ(DeviceZ);
+#if UE4_COMPAT
     float3 WorldPosition = InScreenVector * SceneDepth + View.WorldCameraOrigin;
+#else
+    float3 WorldPosition = InScreenVector * SceneDepth + LWCHackToFloat(PrimaryView.WorldCameraOrigin);
+#endif
     float3 Normal = normalize(DecodeNormal(NormalTexture.SampleLevel(PointClampSampler, BufferUV, 0).xyz));
     float3 BaseColor = DecodeBaseColor(BaseColorTexture.SampleLevel(PointClampSampler, BufferUV, 0).rgb);
     float Metallic = MetallicTexture.SampleLevel(PointClampSampler, BufferUV, 0).r;
@@ -167,7 +170,7 @@ void MainCS(uint3 DispatchThreadID : SV_DispatchThreadID)
     }
 
     #if USE_LIGHTING_CHANNELS
-    uint PixelLightingMask = uint(LightingChannelsTexture.Load(int3(GBufferNearestPixelIndex, 0).x));
+    uint PixelLightingMask = uint(LightingChannelsTexture.Load(int3(GBufferNearestPixelIndex, 0)).x);
     #else
     uint PixelLightingMask = 0;
     #endif

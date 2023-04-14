@@ -277,6 +277,14 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		return ReturnStruct;
 	}
 	uint32 Get_Z_Construct_UScriptStruct_FProbeRelocation_Hash() { return 3781252977U; }
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetProbesVisualization)
+	{
+		P_GET_UBOOL(Z_Param_IsProbesVisualized);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetProbesVisualization(Z_Param_IsProbesVisualized);
+		P_NATIVE_END;
+	}
 	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetLightMultiplier)
 	{
 		P_GET_PROPERTY(FFloatProperty,Z_Param_NewLightMultiplier);
@@ -322,6 +330,96 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		*(float*)Z_Param__Result=P_THIS->GetIrradianceScalar();
 		P_NATIVE_END;
 	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetNormalBias)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewNormalBias);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetNormalBias(Z_Param_NewNormalBias);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetNormalBias)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetNormalBias();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetViewBias)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewViewBias);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetViewBias(Z_Param_NewViewBias);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetViewBias)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetViewBias();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetBlendingCutoffDistance)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewBlendingCutoffDistance);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetBlendingCutoffDistance(Z_Param_NewBlendingCutoffDistance);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetBlendingCutoffDistance)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetBlendingCutoffDistance();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetBlendingDistance)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewBlendingDistance);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetBlendingDistance(Z_Param_NewBlendingDistance);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetBlendingDistance)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetBlendingDistance();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetLightingPriority)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewLightingPriority);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetLightingPriority(Z_Param_NewLightingPriority);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetLightingPriority)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetLightingPriority();
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execSetUpdatePriority)
+	{
+		P_GET_PROPERTY(FFloatProperty,Z_Param_NewUpdatePriority);
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		P_THIS->SetUpdatePriority(Z_Param_NewUpdatePriority);
+		P_NATIVE_END;
+	}
+	DEFINE_FUNCTION(UDDGIVolumeComponent::execGetUpdatePriority)
+	{
+		P_FINISH;
+		P_NATIVE_BEGIN;
+		*(float*)Z_Param__Result=P_THIS->GetUpdatePriority();
+		P_NATIVE_END;
+	}
 	DEFINE_FUNCTION(UDDGIVolumeComponent::execToggleVolume)
 	{
 		P_GET_UBOOL(Z_Param_IsVolumeEnabled);
@@ -350,12 +448,25 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		static const FNameNativePtrPair Funcs[] = {
 			{ "ClearProbeData", &UDDGIVolumeComponent::execClearProbeData },
 			{ "DDGIClearVolumes", &UDDGIVolumeComponent::execDDGIClearVolumes },
+			{ "GetBlendingCutoffDistance", &UDDGIVolumeComponent::execGetBlendingCutoffDistance },
+			{ "GetBlendingDistance", &UDDGIVolumeComponent::execGetBlendingDistance },
 			{ "GetEmissiveMultiplier", &UDDGIVolumeComponent::execGetEmissiveMultiplier },
 			{ "GetIrradianceScalar", &UDDGIVolumeComponent::execGetIrradianceScalar },
+			{ "GetLightingPriority", &UDDGIVolumeComponent::execGetLightingPriority },
 			{ "GetLightMultiplier", &UDDGIVolumeComponent::execGetLightMultiplier },
+			{ "GetNormalBias", &UDDGIVolumeComponent::execGetNormalBias },
+			{ "GetUpdatePriority", &UDDGIVolumeComponent::execGetUpdatePriority },
+			{ "GetViewBias", &UDDGIVolumeComponent::execGetViewBias },
+			{ "SetBlendingCutoffDistance", &UDDGIVolumeComponent::execSetBlendingCutoffDistance },
+			{ "SetBlendingDistance", &UDDGIVolumeComponent::execSetBlendingDistance },
 			{ "SetEmissiveMultiplier", &UDDGIVolumeComponent::execSetEmissiveMultiplier },
 			{ "SetIrradianceScalar", &UDDGIVolumeComponent::execSetIrradianceScalar },
+			{ "SetLightingPriority", &UDDGIVolumeComponent::execSetLightingPriority },
 			{ "SetLightMultiplier", &UDDGIVolumeComponent::execSetLightMultiplier },
+			{ "SetNormalBias", &UDDGIVolumeComponent::execSetNormalBias },
+			{ "SetProbesVisualization", &UDDGIVolumeComponent::execSetProbesVisualization },
+			{ "SetUpdatePriority", &UDDGIVolumeComponent::execSetUpdatePriority },
+			{ "SetViewBias", &UDDGIVolumeComponent::execSetViewBias },
 			{ "ToggleVolume", &UDDGIVolumeComponent::execToggleVolume },
 		};
 		FNativeFunctionRegistrar::RegisterFunctions(Class, Funcs, UE_ARRAY_COUNT(Funcs));
@@ -406,6 +517,72 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		if (!ReturnFunction)
 		{
 			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_DDGIClearVolumes_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics
+	{
+		struct DDGIVolumeComponent_eventGetBlendingCutoffDistance_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetBlendingCutoffDistance_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetBlendingCutoffDistance", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetBlendingCutoffDistance_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics
+	{
+		struct DDGIVolumeComponent_eventGetBlendingDistance_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetBlendingDistance_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetBlendingDistance", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetBlendingDistance_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance_Statics::FuncParams);
 		}
 		return ReturnFunction;
 	}
@@ -475,6 +652,39 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		}
 		return ReturnFunction;
 	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics
+	{
+		struct DDGIVolumeComponent_eventGetLightingPriority_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetLightingPriority_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetLightingPriority", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetLightingPriority_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
 	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetLightMultiplier_Statics
 	{
 		struct DDGIVolumeComponent_eventGetLightMultiplier_Parms
@@ -505,6 +715,171 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		if (!ReturnFunction)
 		{
 			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetLightMultiplier_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics
+	{
+		struct DDGIVolumeComponent_eventGetNormalBias_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetNormalBias_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetNormalBias", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetNormalBias_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics
+	{
+		struct DDGIVolumeComponent_eventGetUpdatePriority_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetUpdatePriority_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetUpdatePriority", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetUpdatePriority_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics
+	{
+		struct DDGIVolumeComponent_eventGetViewBias_Parms
+		{
+			float ReturnValue;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_ReturnValue;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventGetViewBias_Parms, ReturnValue), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::NewProp_ReturnValue,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "GetViewBias", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventGetViewBias_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x54020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics
+	{
+		struct DDGIVolumeComponent_eventSetBlendingCutoffDistance_Parms
+		{
+			float NewBlendingCutoffDistance;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewBlendingCutoffDistance;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::NewProp_NewBlendingCutoffDistance = { "NewBlendingCutoffDistance", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetBlendingCutoffDistance_Parms, NewBlendingCutoffDistance), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::NewProp_NewBlendingCutoffDistance,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetBlendingCutoffDistance", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetBlendingCutoffDistance_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics
+	{
+		struct DDGIVolumeComponent_eventSetBlendingDistance_Parms
+		{
+			float NewBlendingDistance;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewBlendingDistance;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::NewProp_NewBlendingDistance = { "NewBlendingDistance", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetBlendingDistance_Parms, NewBlendingDistance), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::NewProp_NewBlendingDistance,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetBlendingDistance", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetBlendingDistance_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance_Statics::FuncParams);
 		}
 		return ReturnFunction;
 	}
@@ -574,6 +949,39 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		}
 		return ReturnFunction;
 	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics
+	{
+		struct DDGIVolumeComponent_eventSetLightingPriority_Parms
+		{
+			float NewLightingPriority;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewLightingPriority;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::NewProp_NewLightingPriority = { "NewLightingPriority", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetLightingPriority_Parms, NewLightingPriority), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::NewProp_NewLightingPriority,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetLightingPriority", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetLightingPriority_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
 	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetLightMultiplier_Statics
 	{
 		struct DDGIVolumeComponent_eventSetLightMultiplier_Parms
@@ -604,6 +1012,145 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		if (!ReturnFunction)
 		{
 			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetLightMultiplier_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics
+	{
+		struct DDGIVolumeComponent_eventSetNormalBias_Parms
+		{
+			float NewNormalBias;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewNormalBias;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::NewProp_NewNormalBias = { "NewNormalBias", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetNormalBias_Parms, NewNormalBias), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::NewProp_NewNormalBias,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetNormalBias", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetNormalBias_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics
+	{
+		struct DDGIVolumeComponent_eventSetProbesVisualization_Parms
+		{
+			bool IsProbesVisualized;
+		};
+		static void NewProp_IsProbesVisualized_SetBit(void* Obj);
+		static const UE4CodeGen_Private::FBoolPropertyParams NewProp_IsProbesVisualized;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	void Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::NewProp_IsProbesVisualized_SetBit(void* Obj)
+	{
+		((DDGIVolumeComponent_eventSetProbesVisualization_Parms*)Obj)->IsProbesVisualized = 1;
+	}
+	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::NewProp_IsProbesVisualized = { "IsProbesVisualized", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Bool | UE4CodeGen_Private::EPropertyGenFlags::NativeBool, RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(bool), sizeof(DDGIVolumeComponent_eventSetProbesVisualization_Parms), &Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::NewProp_IsProbesVisualized_SetBit, METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::NewProp_IsProbesVisualized,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::Function_MetaDataParams[] = {
+		{ "AdvancedDisplay", "2" },
+		{ "Category", "DDGI" },
+		{ "DevelopmentOnly", "" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetProbesVisualization", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetProbesVisualization_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics
+	{
+		struct DDGIVolumeComponent_eventSetUpdatePriority_Parms
+		{
+			float NewUpdatePriority;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewUpdatePriority;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::NewProp_NewUpdatePriority = { "NewUpdatePriority", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetUpdatePriority_Parms, NewUpdatePriority), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::NewProp_NewUpdatePriority,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetUpdatePriority", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetUpdatePriority_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority_Statics::FuncParams);
+		}
+		return ReturnFunction;
+	}
+	struct Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics
+	{
+		struct DDGIVolumeComponent_eventSetViewBias_Parms
+		{
+			float NewViewBias;
+		};
+		static const UE4CodeGen_Private::FFloatPropertyParams NewProp_NewViewBias;
+		static const UE4CodeGen_Private::FPropertyParamsBase* const PropPointers[];
+#if WITH_METADATA
+		static const UE4CodeGen_Private::FMetaDataPairParam Function_MetaDataParams[];
+#endif
+		static const UE4CodeGen_Private::FFunctionParams FuncParams;
+	};
+	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::NewProp_NewViewBias = { "NewViewBias", nullptr, (EPropertyFlags)0x0010000000000080, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(DDGIVolumeComponent_eventSetViewBias_Parms, NewViewBias), METADATA_PARAMS(nullptr, 0) };
+	const UE4CodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::PropPointers[] = {
+		(const UE4CodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::NewProp_NewViewBias,
+	};
+#if WITH_METADATA
+	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::Function_MetaDataParams[] = {
+		{ "Category", "DDGI" },
+		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
+	};
+#endif
+	const UE4CodeGen_Private::FFunctionParams Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UDDGIVolumeComponent, nullptr, "SetViewBias", nullptr, nullptr, sizeof(DDGIVolumeComponent_eventSetViewBias_Parms), Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::PropPointers), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04020401, 0, 0, METADATA_PARAMS(Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::Function_MetaDataParams, UE_ARRAY_COUNT(Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::Function_MetaDataParams)) };
+	UFunction* Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias()
+	{
+		static UFunction* ReturnFunction = nullptr;
+		if (!ReturnFunction)
+		{
+			UE4CodeGen_Private::ConstructUFunction(ReturnFunction, Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias_Statics::FuncParams);
 		}
 		return ReturnFunction;
 	}
@@ -777,12 +1324,25 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 	const FClassFunctionLinkInfo Z_Construct_UClass_UDDGIVolumeComponent_Statics::FuncInfo[] = {
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_ClearProbeData, "ClearProbeData" }, // 2371545718
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_DDGIClearVolumes, "DDGIClearVolumes" }, // 189337068
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingCutoffDistance, "GetBlendingCutoffDistance" }, // 1755322215
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetBlendingDistance, "GetBlendingDistance" }, // 1746864222
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetEmissiveMultiplier, "GetEmissiveMultiplier" }, // 582698209
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetIrradianceScalar, "GetIrradianceScalar" }, // 3481598640
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetLightingPriority, "GetLightingPriority" }, // 3343669706
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetLightMultiplier, "GetLightMultiplier" }, // 615928876
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetNormalBias, "GetNormalBias" }, // 431095571
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetUpdatePriority, "GetUpdatePriority" }, // 3294813927
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_GetViewBias, "GetViewBias" }, // 2557396144
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingCutoffDistance, "SetBlendingCutoffDistance" }, // 1027737916
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetBlendingDistance, "SetBlendingDistance" }, // 2879784521
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetEmissiveMultiplier, "SetEmissiveMultiplier" }, // 3870701765
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetIrradianceScalar, "SetIrradianceScalar" }, // 1232453427
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetLightingPriority, "SetLightingPriority" }, // 3980017198
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetLightMultiplier, "SetLightMultiplier" }, // 389137345
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetNormalBias, "SetNormalBias" }, // 3151690528
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetProbesVisualization, "SetProbesVisualization" }, // 3917703695
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetUpdatePriority, "SetUpdatePriority" }, // 3385120570
+		{ &Z_Construct_UFunction_UDDGIVolumeComponent_SetViewBias, "SetViewBias" }, // 1067110806
 		{ &Z_Construct_UFunction_UDDGIVolumeComponent_ToggleVolume, "ToggleVolume" }, // 727174760
 	};
 #if WITH_METADATA
@@ -860,11 +1420,12 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RuntimeStatic = { "RuntimeStatic", nullptr, (EPropertyFlags)0x0010040000000001, UE4CodeGen_Private::EPropertyGenFlags::Bool | UE4CodeGen_Private::EPropertyGenFlags::NativeBool, RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(bool), sizeof(UDDGIVolumeComponent), &Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RuntimeStatic_SetBit, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RuntimeStatic_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RuntimeStatic_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin_MetaData[] = {
-		{ "Category", "GI Volume" },
+		{ "DeprecatedProperty", "" },
+		{ "DeprecationMessage", "not needed from blueprints" },
 		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
 	};
 #endif
-	const UE4CodeGen_Private::FStructPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin = { "LastOrigin", nullptr, (EPropertyFlags)0x0010040000030001, UE4CodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, LastOrigin), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin_MetaData)) };
+	const UE4CodeGen_Private::FStructPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin = { "LastOrigin", nullptr, (EPropertyFlags)0x0010000020000000, UE4CodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, LastOrigin_DEPRECATED), Z_Construct_UScriptStruct_FVector, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LastOrigin_MetaData)) };
 	const UE4CodeGen_Private::FUnsizedIntPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RaysPerProbe_Underlying = { "UnderlyingType", nullptr, (EPropertyFlags)0x0000000000000000, UE4CodeGen_Private::EPropertyGenFlags::Int, RF_Public|RF_Transient|RF_MarkAsNative, 1, 0, METADATA_PARAMS(nullptr, 0) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_RaysPerProbe_MetaData[] = {
@@ -943,11 +1504,12 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 	const UE4CodeGen_Private::FBoolPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_VisualizeProbes = { "VisualizeProbes", nullptr, (EPropertyFlags)0x0010000000000001, UE4CodeGen_Private::EPropertyGenFlags::Bool | UE4CodeGen_Private::EPropertyGenFlags::NativeBool, RF_Public|RF_Transient|RF_MarkAsNative, 1, sizeof(bool), sizeof(UDDGIVolumeComponent), &Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_VisualizeProbes_SetBit, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_VisualizeProbes_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_VisualizeProbes_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset_MetaData[] = {
-		{ "Category", "GI Probes" },
+		{ "DeprecatedProperty", "" },
+		{ "DeprecationMessage", "not needed from blueprints" },
 		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
 	};
 #endif
-	const UE4CodeGen_Private::FStructPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset = { "ProbeScrollOffset", nullptr, (EPropertyFlags)0x0010040000030001, UE4CodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, ProbeScrollOffset), Z_Construct_UScriptStruct_FIntVector, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset_MetaData)) };
+	const UE4CodeGen_Private::FStructPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset = { "ProbeScrollOffset", nullptr, (EPropertyFlags)0x0010000020000000, UE4CodeGen_Private::EPropertyGenFlags::Struct, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, ProbeScrollOffset_DEPRECATED), Z_Construct_UScriptStruct_FIntVector, METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_ProbeScrollOffset_MetaData)) };
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_probeDistanceExponent_MetaData[] = {
 		{ "Category", "GI Probes" },
@@ -1018,9 +1580,9 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LightMultiplier_MetaData[] = {
 		{ "Category", "GI Lighting" },
 		{ "ClampMin", "0" },
-		{ "Comment", "// If you want to artificially increase the amount of lighting given by this volume, you can modify this lighting multiplier to do so.\n" },
+		{ "Comment", "// Artificially modifies the amount of lighting given by this volume. Note that this multiplier affects emissive lighting.\n" },
 		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
-		{ "ToolTip", "If you want to artificially increase the amount of lighting given by this volume, you can modify this lighting multiplier to do so." },
+		{ "ToolTip", "Artificially modifies the amount of lighting given by this volume. Note that this multiplier affects emissive lighting." },
 	};
 #endif
 	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LightMultiplier = { "LightMultiplier", nullptr, (EPropertyFlags)0x0010000000000001, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, LightMultiplier), METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LightMultiplier_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_LightMultiplier_MetaData)) };
@@ -1028,9 +1590,9 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_EmissiveMultiplier_MetaData[] = {
 		{ "Category", "GI Lighting" },
 		{ "ClampMin", "0" },
-		{ "Comment", "// Use this to artificially modify how much emissive lighting contributes to GI\n" },
+		{ "Comment", "// Artificially modifies emissive lighting contribution\n" },
 		{ "ModuleRelativePath", "Public/DDGIVolumeComponent.h" },
-		{ "ToolTip", "Use this to artificially modify how much emissive lighting contributes to GI" },
+		{ "ToolTip", "Artificially modifies emissive lighting contribution" },
 	};
 #endif
 	const UE4CodeGen_Private::FFloatPropertyParams Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_EmissiveMultiplier = { "EmissiveMultiplier", nullptr, (EPropertyFlags)0x0010000000000001, UE4CodeGen_Private::EPropertyGenFlags::Float, RF_Public|RF_Transient|RF_MarkAsNative, 1, STRUCT_OFFSET(UDDGIVolumeComponent, EmissiveMultiplier), METADATA_PARAMS(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_EmissiveMultiplier_MetaData, UE_ARRAY_COUNT(Z_Construct_UClass_UDDGIVolumeComponent_Statics::NewProp_EmissiveMultiplier_MetaData)) };
@@ -1112,7 +1674,7 @@ static struct FScriptStruct_RTXGI_StaticRegisterNativesFProbeRelocation
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(UDDGIVolumeComponent, 1985591979);
+	IMPLEMENT_CLASS(UDDGIVolumeComponent, 1272464696);
 	template<> RTXGI_API UClass* StaticClass<UDDGIVolumeComponent>()
 	{
 		return UDDGIVolumeComponent::StaticClass();
