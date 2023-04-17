@@ -13,10 +13,10 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define DLSS_DLSSSettings_generated_h
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS_NO_PURE_DECLS
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS_NO_PURE_DECLS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS_NO_PURE_DECLS
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUDLSSOverrideSettings(); \
 	friend struct Z_Construct_UClass_UDLSSOverrideSettings_Statics; \
@@ -27,7 +27,7 @@ public: \
 
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS \
 private: \
 	static void StaticRegisterNativesUDLSSOverrideSettings(); \
 	friend struct Z_Construct_UClass_UDLSSOverrideSettings_Statics; \
@@ -38,7 +38,7 @@ public: \
 
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_STANDARD_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UDLSSOverrideSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSOverrideSettings) \
@@ -51,7 +51,7 @@ private: \
 public:
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_ENHANCED_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UDLSSOverrideSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -64,38 +64,38 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSOverrideSettings)
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_41_PROLOG
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_GENERATED_BODY_LEGACY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_41_PROLOG
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_STANDARD_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_GENERATED_BODY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_ENHANCED_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_RPC_WRAPPERS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_INCLASS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_46_ENHANCED_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
 template<> DLSS_API UClass* StaticClass<class UDLSSOverrideSettings>();
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS_NO_PURE_DECLS
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS_NO_PURE_DECLS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS_NO_PURE_DECLS
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUDLSSSettings(); \
 	friend struct Z_Construct_UClass_UDLSSSettings_Statics; \
@@ -106,7 +106,7 @@ public: \
 
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS \
 private: \
 	static void StaticRegisterNativesUDLSSSettings(); \
 	friend struct Z_Construct_UClass_UDLSSSettings_Statics; \
@@ -117,7 +117,7 @@ public: \
 
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_STANDARD_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UDLSSSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSSettings) \
@@ -130,7 +130,7 @@ private: \
 public:
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_ENHANCED_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API UDLSSSettings(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -143,28 +143,28 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSSettings)
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_70_PROLOG
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_GENERATED_BODY_LEGACY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_70_PROLOG
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_STANDARD_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_GENERATED_BODY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_ENHANCED_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_RPC_WRAPPERS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_INCLASS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h_73_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -172,7 +172,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> DLSS_API UClass* StaticClass<class UDLSSSettings>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID HostProject_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h
+#define CURRENT_FILE_ID Game_Planning_Task_Plugins_DLSS_Source_DLSS_Public_DLSSSettings_h
 
 
 #define FOREACH_ENUM_EDLSSPRESET(op) \

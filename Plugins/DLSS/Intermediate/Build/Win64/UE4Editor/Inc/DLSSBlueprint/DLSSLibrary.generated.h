@@ -16,8 +16,8 @@ enum class UDLSSSupport : uint8;
 #endif
 #define DLSSBLUEPRINT_DLSSLibrary_generated_h
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS \
  \
 	DECLARE_FUNCTION(execGetDefaultDLSSMode); \
 	DECLARE_FUNCTION(execGetDLSSSharpness); \
@@ -35,7 +35,7 @@ enum class UDLSSSupport : uint8;
 	DECLARE_FUNCTION(execIsDLSSSupported);
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS_NO_PURE_DECLS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS_NO_PURE_DECLS \
  \
 	DECLARE_FUNCTION(execGetDefaultDLSSMode); \
 	DECLARE_FUNCTION(execGetDLSSSharpness); \
@@ -53,7 +53,7 @@ enum class UDLSSSupport : uint8;
 	DECLARE_FUNCTION(execIsDLSSSupported);
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS_NO_PURE_DECLS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesUDLSSLibrary(); \
 	friend struct Z_Construct_UClass_UDLSSLibrary_Statics; \
@@ -62,7 +62,7 @@ public: \
 	DECLARE_SERIALIZER(UDLSSLibrary)
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS \
 private: \
 	static void StaticRegisterNativesUDLSSLibrary(); \
 	friend struct Z_Construct_UClass_UDLSSLibrary_Statics; \
@@ -71,7 +71,7 @@ public: \
 	DECLARE_SERIALIZER(UDLSSLibrary)
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_STANDARD_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	DLSSBLUEPRINT_API UDLSSLibrary(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSLibrary) \
@@ -84,7 +84,7 @@ private: \
 public:
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_ENHANCED_CONSTRUCTORS \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	DLSSBLUEPRINT_API UDLSSLibrary(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -97,28 +97,28 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(UDLSSLibrary)
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_64_PROLOG
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_GENERATED_BODY_LEGACY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_64_PROLOG
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_STANDARD_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_GENERATED_BODY \
+#define Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS_NO_PURE_DECLS \
-	HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_ENHANCED_CONSTRUCTORS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_PRIVATE_PROPERTY_OFFSET \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_SPARSE_DATA \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_RPC_WRAPPERS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_INCLASS_NO_PURE_DECLS \
+	Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h_68_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -126,7 +126,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> DLSSBLUEPRINT_API UClass* StaticClass<class UDLSSLibrary>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID HostProject_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h
+#define CURRENT_FILE_ID Game_Planning_Task_Plugins_DLSS_Source_DLSSBlueprint_Public_DLSSLibrary_h
 
 
 #define FOREACH_ENUM_UDLSSMODE(op) \
