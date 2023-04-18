@@ -15,7 +15,7 @@ D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
 D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\Windows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\sdkddkver.h
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\INCLUDE\excpt.h
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\excpt.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\windef.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\minwindef.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\winnt.h
@@ -203,7 +203,7 @@ D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12StateCachePriv
 D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Allocation.h
 D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12CommandContext.h
 D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\INCLUDE\delayimp.h
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\delayimp.h
 D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3.h
 D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3_win.h
 D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\PIXEventsCommon.h
