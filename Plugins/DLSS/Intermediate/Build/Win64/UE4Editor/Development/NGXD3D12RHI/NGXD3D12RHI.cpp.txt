@@ -1,18 +1,18 @@
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXD3D12RHI\Definitions.NGXD3D12RHI.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXD3D12RHI\Public\NGXD3D12RHI.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public\NGXRHI.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_params.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_defs.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx.h
-D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_helpers.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RHIPrivate.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\HAL/ThreadManager.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\GPUProfiler.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Public\D3D12RHI.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RHICommon.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/WindowsHWrapper.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXD3D12RHI\Definitions.NGXD3D12RHI.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXD3D12RHI\Public\NGXD3D12RHI.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public\NGXRHI.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_params.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_defs.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx.h
+C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_helpers.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RHIPrivate.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\HAL/ThreadManager.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\GPUProfiler.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Public\D3D12RHI.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RHICommon.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/WindowsHWrapper.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\Windows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\sdkddkver.h
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\excpt.h
@@ -109,10 +109,10 @@ C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\wnnc.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\stralign.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\imm.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\ime_cmodes.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PostWindowsApi.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows/D3D12RHIBasePrivate.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3d12.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PostWindowsApi.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows/D3D12RHIBasePrivate.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3d12.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\rpc.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\pshpack8.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\rpcdce.h
@@ -126,7 +126,7 @@ C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\poppack.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\rpcndr.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\pshpack8.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\rpcnsip.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\rpcsal.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\rpcsal.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\poppack.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\ole2.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\pshpack8.h
@@ -158,58 +158,58 @@ C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\pshpack8.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\poppack.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\poppack.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\ocidl.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgicommon.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgiformat.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3dcommon.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3d12sdklayers.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\D3DX12\include\d3dx12.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Util.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\WindowsD3D12DiskCache.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\WindowsD3D12PipelineState.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\../D3D12PipelineState.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath_Defines.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath_GpuCrashdump.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Residency.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformAtomics.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_6.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_5.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_4.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_3.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_2.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgitype.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\D3DX12\include\D3DX12Residency.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformAtomics.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12State.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Resources.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\BoundShaderStateCache.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Public\D3D12ShaderResources.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RootSignature.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Shader.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12View.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12CommandList.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Texture.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12DirectCommandListManager.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Viewport.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12ConstantBuffer.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Query.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12TimedIntervalQuery.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12DescriptorCache.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12StateCachePrivate.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Allocation.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12CommandContext.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgicommon.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgiformat.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3dcommon.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\d3d12sdklayers.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\D3DX12\include\d3dx12.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Util.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\WindowsD3D12DiskCache.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\WindowsD3D12PipelineState.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\Windows\../D3D12PipelineState.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath_Defines.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\NVIDIA\NVaftermath\include\GFSDK_Aftermath_GpuCrashdump.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Residency.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformAtomics.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_6.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_5.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_4.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_3.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi1_2.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgi.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgitype.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\D3DX12\include\D3DX12Residency.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformAtomics.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12State.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Resources.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\BoundShaderStateCache.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Public\D3D12ShaderResources.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12RootSignature.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Shader.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12View.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12CommandList.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Texture.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12DirectCommandListManager.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12Viewport.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\../Public/D3D12ConstantBuffer.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Query.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12TimedIntervalQuery.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12DescriptorCache.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12StateCachePrivate.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Allocation.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12CommandContext.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/AllowWindowsPlatformTypes.h
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\delayimp.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3_win.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\PIXEventsCommon.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\PIXEventsGenerated.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Stats.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Device.h
-D:\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Adapter.h
-D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgidebug.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\pix3_win.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\PIXEventsCommon.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\PIX\include\PIXEventsGenerated.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/HideWindowsPlatformTypes.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Stats.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Device.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\D3D12RHI\Private\D3D12Adapter.h
+C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Windows\DirectX\include\dxgidebug.h
