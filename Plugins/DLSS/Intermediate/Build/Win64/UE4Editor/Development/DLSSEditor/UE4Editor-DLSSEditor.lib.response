@@ -6,7 +6,7 @@
 /NAME:"UE4Editor-DLSSEditor.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.obj"
+"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\UE4Editor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.obj"
 "D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Module.DLSSEditor.cpp.obj"
 "D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Default.rc2.res"
 /OUT:"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\UE4Editor-DLSSEditor.lib"

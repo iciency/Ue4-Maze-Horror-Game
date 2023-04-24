@@ -49,8 +49,8 @@
 #define NDEBUG 1
 #define UE_BUILD_DEVELOPMENT 1
 #define UE_IS_ENGINE_MODULE 0
-#define UE_PROJECT_NAME Game_Planning_Task
-#define UE_TARGET_NAME Game_Planning_TaskEditor
+#define UE_PROJECT_NAME MazeHorrer
+#define UE_TARGET_NAME UE4Editor
 #define UE_MODULE_NAME "NGXD3D11RHI"
 #define UE_PLUGIN_NAME "DLSS"
 #define IMPLEMENT_ENCRYPTION_KEY_REGISTRATION() 
