@@ -34,8 +34,8 @@
 /I .
 /I Runtime\Renderer\Private
 /I Editor\LevelEditor\Private
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSS\Private
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSSEditor\Private
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSS\Private
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSSEditor\Private
 /I Runtime
 /I Runtime\TraceLog\Public
 /I Runtime\Core\Public
@@ -236,13 +236,13 @@
 /I ..\Intermediate\Build\Win64\UE4Editor\Inc\ClothingSystemRuntimeInterface
 /I Runtime\ClothingSystemRuntimeInterface\Public
 /I Editor\EditorWidgets\Public
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Inc\DLSS
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSS\Public
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSSEditor\Public
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Inc\DLSS
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSS\Public
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSSEditor\Public
 /I ThirdParty\PhysX3\PxShared\include
 /I ThirdParty\PhysX3\PxShared\include\cudamanager
 /I ThirdParty\PhysX3\PxShared\include\filebuf
@@ -266,19 +266,19 @@
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\RenderDebug\public
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\PairFilter\include
 /I ThirdParty\PhysX3\APEX_1.4\shared\internal\include
-/I D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include
+/I C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include
 /I "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
-/I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8\include\um"
+/I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
 /I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-/FI"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\UE4Editor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h"
-/Yu"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\UE4Editor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h"
-/Fp"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\UE4Editor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.pch"
-"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Module.DLSSEditor.cpp"
-/FI"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Definitions.DLSSEditor.h"
-/Fo"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Module.DLSSEditor.cpp.obj"
+/FI"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h"
+/Yu"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h"
+/Fp"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\UnrealEd\SharedPCH.UnrealEd.ShadowErrors.h.pch"
+"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Module.DLSSEditor.cpp"
+/FI"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Definitions.DLSSEditor.h"
+/Fo"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\DLSSEditor\Module.DLSSEditor.cpp.obj"
 /TP
 /GR-
 /W4
