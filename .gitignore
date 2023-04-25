@@ -5,8 +5,8 @@
 *.sln
 *_BuiltData.uasset
 /Binaries
-Win64/UE4Editor-Game_Planning_Task.dll
 /Plugins/RTXGI/Binaries
 /Plugins/RTXGI/Intermediate
 /Plugins/DLSS/Binaries
 /Plugins/DLSS/Intermediate
+Win64/UE4Editor-Game_Planning_Task.dll
