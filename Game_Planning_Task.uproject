@@ -234,6 +234,10 @@
 		{
 			"Name": "ImpostorBaker",
 			"Enabled": true
+		},
+		{
+			"Name": "RTXGI",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
