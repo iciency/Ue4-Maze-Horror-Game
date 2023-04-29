@@ -2,14 +2,14 @@
 	"BuildId": "17155196",
 	"Modules": 
 	{
-		"DLSS": "UE4Editor-DLSS-0002.dll",
-		"DLSSBlueprint": "UE4Editor-DLSSBlueprint-0002.dll",
-		"DLSSEditor": "UE4Editor-DLSSEditor-0002.dll",
-		"DLSSUtility": "UE4Editor-DLSSUtility-0002.dll",
-		"NGXD3D11RHI": "UE4Editor-NGXD3D11RHI-0002.dll",
-		"NGXD3D12RHI": "UE4Editor-NGXD3D12RHI-0002.dll",
-		"NGXRHI": "UE4Editor-NGXRHI-0002.dll",
-		"NGXVulkanRHI": "UE4Editor-NGXVulkanRHI-0002.dll",
-		"NGXVulkanRHIPreInit": "UE4Editor-NGXVulkanRHIPreInit-0002.dll"
+		"DLSS": "UE4Editor-DLSS-0003.dll",
+		"DLSSBlueprint": "UE4Editor-DLSSBlueprint-0003.dll",
+		"DLSSEditor": "UE4Editor-DLSSEditor-0003.dll",
+		"DLSSUtility": "UE4Editor-DLSSUtility-0003.dll",
+		"NGXD3D11RHI": "UE4Editor-NGXD3D11RHI-0003.dll",
+		"NGXD3D12RHI": "UE4Editor-NGXD3D12RHI-0003.dll",
+		"NGXRHI": "UE4Editor-NGXRHI-0003.dll",
+		"NGXVulkanRHI": "UE4Editor-NGXVulkanRHI-0003.dll",
+		"NGXVulkanRHIPreInit": "UE4Editor-NGXVulkanRHIPreInit-0003.dll"
 	}
 }
