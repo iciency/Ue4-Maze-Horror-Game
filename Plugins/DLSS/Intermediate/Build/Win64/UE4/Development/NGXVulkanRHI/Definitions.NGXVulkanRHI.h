@@ -34,14 +34,14 @@
 #define WITH_PUSH_MODEL 0
 #define WITH_CEF3 1
 #define WITH_LIVE_CODING 1
-#define UE_LIVE_CODING_ENGINE_DIR "D:\\Epic Games\\UE_4.27\\Engine"
-#define UE_LIVE_CODING_PROJECT "D:\\CreateGame\\Unreal\\Game_Planning_Task\\MazeHorrer.uproject"
+#define UE_LIVE_CODING_ENGINE_DIR "C:\\Program Files\\Epic Games\\UE_4.27\\Engine"
+#define UE_LIVE_CODING_PROJECT "C:\\Unreal\\Game_Planning_Task\\Game_Planning_Task.uproject"
 #define UBT_MODULE_MANIFEST "UE4.modules"
 #define UBT_MODULE_MANIFEST_DEBUGGAME "UE4-Win64-DebugGame.modules"
 #define UBT_COMPILED_PLATFORM Win64
 #define UBT_COMPILED_TARGET Game
 #define UE_APP_NAME "UE4"
-#define UE_ENGINE_DIRECTORY "../../../../../Epic Games/UE_4.27/Engine/"
+#define UE_ENGINE_DIRECTORY "../../../../Program Files/Epic Games/UE_4.27/Engine/"
 #define NDIS_MINIPORT_MAJOR_VERSION 0
 #define WIN32 1
 #define _WIN32_WINNT 0x0601
@@ -53,8 +53,8 @@
 #define NDEBUG 1
 #define UE_BUILD_DEVELOPMENT 1
 #define UE_IS_ENGINE_MODULE 0
-#define UE_PROJECT_NAME MazeHorrer
-#define UE_TARGET_NAME MazeHorrer
+#define UE_PROJECT_NAME Game_Planning_Task
+#define UE_TARGET_NAME Game_Planning_Task
 #define UE_MODULE_NAME "NGXVulkanRHI"
 #define UE_PLUGIN_NAME "DLSS"
 #define IMPLEMENT_ENCRYPTION_KEY_REGISTRATION() 
