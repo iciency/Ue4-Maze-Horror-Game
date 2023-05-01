@@ -6,7 +6,7 @@
 /NAME:"UE4Editor-NGXVulkanRHIPreInit.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"C:\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
-"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\NGXVulkanRHIPreInit.cpp.obj"
-"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\Default.rc2.res"
-/OUT:"C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\UE4Editor-NGXVulkanRHIPreInit.lib"
+"D:\CreateGame\Unreal\Game_Planning_Task\Intermediate\Build\Win64\Game_Planning_TaskEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\NGXVulkanRHIPreInit.cpp.obj"
+"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\Default.rc2.res"
+/OUT:"D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHIPreInit\UE4Editor-NGXVulkanRHIPreInit.lib"

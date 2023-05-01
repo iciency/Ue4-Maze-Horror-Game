@@ -1,18 +1,18 @@
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHI\Definitions.NGXVulkanRHI.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXVulkanRHI\Public\NGXVulkanRHI.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public\NGXRHI.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_params.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_defs.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanRHIPrivate.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidation.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidationUtils.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidationContext.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPlatform.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\VulkanPlatformDefines.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\VulkanWindowsPlatform.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/WindowsHWrapper.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4Editor\Development\NGXVulkanRHI\Definitions.NGXVulkanRHI.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXVulkanRHI\Public\NGXVulkanRHI.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\NGXRHI\Public\NGXRHI.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_params.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_defs.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanRHIPrivate.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidation.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidationUtils.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\RHIValidationContext.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPlatform.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\VulkanPlatformDefines.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\VulkanWindowsPlatform.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/WindowsHWrapper.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PreWindowsApi.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/MinWindows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\Windows.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\sdkddkver.h
 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE\excpt.h
@@ -109,39 +109,39 @@ C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\wnnc.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared\stralign.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\imm.h
 C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um\ime_cmodes.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PostWindowsApi.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\../VulkanGenericPlatform.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanLoader.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vk_platform.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan_core.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan_win32.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanConfiguration.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanCommon.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanCommandsDirect.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanState.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanResources.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanUtil.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\BoundShaderStateCache.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanShaderResources.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\CrossCompilerCommon.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\ShaderCompilerCore.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanMemory.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanViewport.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanDynamicRHI.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanDevice.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanQueue.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanCommandBuffer.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPendingState.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPipeline.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanDescriptorSets.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\ShaderPipelineCache.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\PipelineFileCache.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPipelineState.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanRHIBridge.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanContext.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanGPUProfiler.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\GPUProfiler.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanBarriers.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_vk.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_helpers_vk.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\Core\Public\Windows/PostWindowsApi.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\Windows\../VulkanGenericPlatform.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanLoader.h
+D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan.h
+D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vk_platform.h
+D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan_core.h
+D:\Epic Games\UE_4.27\Engine\Source\ThirdParty\Vulkan\Include\vulkan\vulkan_win32.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanConfiguration.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanCommon.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanCommandsDirect.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanState.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanResources.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanUtil.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\BoundShaderStateCache.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanShaderResources.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\CrossCompilerCommon.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\ShaderCompilerCore.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanMemory.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanViewport.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanDynamicRHI.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanDevice.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanQueue.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanCommandBuffer.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPendingState.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPipeline.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanDescriptorSets.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RenderCore\Public\ShaderPipelineCache.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\PipelineFileCache.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanPipelineState.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Public\VulkanRHIBridge.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanContext.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanGPUProfiler.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\RHI\Public\GPUProfiler.h
+D:\Epic Games\UE_4.27\Engine\Source\Runtime\VulkanRHI\Private\VulkanBarriers.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_vk.h
+D:\CreateGame\Unreal\Game_Planning_Task\Plugins\DLSS\Source\ThirdParty\NGX\Include\nvsdk_ngx_helpers_vk.h
