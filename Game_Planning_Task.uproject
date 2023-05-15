@@ -7,7 +7,10 @@
 		{
 			"Name": "Game_Planning_Task",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	],
 	"Plugins": [
@@ -237,7 +240,7 @@
 		},
 		{
 			"Name": "RTXGI",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "BlueprintJson",
