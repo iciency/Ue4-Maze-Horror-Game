@@ -14,8 +14,7 @@ FString UGetGpu_Function_Lib::GetCPUBrandName()
 	return FWindowsPlatformMisc::GetCPUBrand();
 }
 
-bool UGetGpu_Function_Lib::GetRaytracingEnabled()
+/*bool UGetGpu_Function_Lib::GetRaytracingEnabled()
 {
-	bool IsRayTracingEnabled = IsRayTracingEnabled();
-	return IsRayTracingEnabled;
-}
+	return IsRayTracingEnabled();
+}*/
