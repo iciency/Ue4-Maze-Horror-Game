@@ -1,8 +1,0 @@
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4\Development\DLSS\Definitions.DLSS.h
-C:/Unreal/Game_Planning_Task/Plugins/DLSS/Intermediate/Build/Win64/UE4/Inc/DLSS/DLSS.init.gen.cpp
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\CoreUObject\Public\UObject/GeneratedCppIncludes.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\CoreUObject\Public\UObject/MetaData.h
-C:/Unreal/Game_Planning_Task/Plugins/DLSS/Intermediate/Build/Win64/UE4/Inc/DLSS/DLSSSettings.gen.cpp
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Source\DLSS/Public/DLSSSettings.h
-C:\Program Files\Epic Games\UE_4.27\Engine\Source\Runtime\Engine\Public\CustomStaticScreenPercentage.h
-C:\Unreal\Game_Planning_Task\Plugins\DLSS\Intermediate\Build\Win64\UE4\Inc\DLSS\DLSSSettings.generated.h
