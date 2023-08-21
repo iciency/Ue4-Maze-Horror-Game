@@ -1,4 +1,4 @@
-## Created by https://www.toptal.com/developers/gitignore/api/unrealengine
+# Created by https://www.toptal.com/developers/gitignore/api/unrealengine
 # Edit at https://www.toptal.com/developers/gitignore?templates=unrealengine
 
 ### UnrealEngine ###
@@ -92,5 +92,4 @@ Build/Android/res/*/*
 # Ignore plugins binaries on deep subfolders
 Plugins/**/Binaries/*
 Plugins/**/Intermediate/*
-
-Win64/UE4Editor-Game_Planning_Task.dll
+# End of https://www.toptal.com/developers/gitignore/api/unrealengine
