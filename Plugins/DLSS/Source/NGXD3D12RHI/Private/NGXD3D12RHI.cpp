@@ -1,36 +1,21 @@
 /*
-* Copyright (c) 2020 - 2021 NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
+* NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+* property and proprietary rights in and to this material, related
+* documentation and any modifications thereto. Any use, reproduction,
+* disclosure or distribution of this material and related documentation
+* without an express license agreement from NVIDIA CORPORATION or
+* its affiliates is strictly prohibited.
 */
 
 #include "NGXD3D12RHI.h"
 
 #include "nvsdk_ngx.h"
 #include "nvsdk_ngx_helpers.h"
+#include "nvsdk_ngx_helpers_dlssd.h"
 
-#include "D3D12RHIPrivate.h"
-#include "D3D12Util.h"
-#include "D3D12State.h"
-#include "D3D12Resources.h"
-#include "D3D12Viewport.h"
-#include "D3D12ConstantBuffer.h"
-
-#include "RHIValidationCommon.h"
+#include "ID3D12DynamicRHI.h"
 #include "GenericPlatform/GenericPlatformFile.h"
 
 
@@ -71,8 +56,7 @@ private:
 	NVSDK_NGX_Result Init_NGX_D3D12(const FNGXRHICreateArguments& InArguments, const wchar_t* InApplicationDataPath, ID3D12Device* InHandle, const NVSDK_NGX_FeatureCommonInfo* InFeatureInfo);
 	static bool IsIncompatibleAPICaptureToolActive(ID3D12Device* InDirect3DDevice);
 
-	FD3D12DynamicRHI* D3D12RHI = nullptr;
-
+	ID3D12DynamicRHI* D3D12RHI = nullptr;
 
 };
 
@@ -110,7 +94,7 @@ NVSDK_NGX_Result FNGXD3D12RHI::Init_NGX_D3D12(const FNGXRHICreateArguments& InAr
 			UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_Init_with_ProjectID(ProjectID = %s, EngineVersion=%s, APIVersion = 0x%x, Device=%p) -> (%u %s)"), *InArguments.UnrealProjectID, *InArguments.UnrealEngineVersion, APIVersion, InHandle,  Result, GetNGXResultAsString(Result));
 		}
 
-		if (NVSDK_NGX_FAILED(Result))
+		if (NVSDK_NGX_FAILED(Result) && IsSafeToShutdownNGX())
 		{
 			NVSDK_NGX_D3D12_Shutdown1(InHandle);
 		}
@@ -130,10 +114,11 @@ NVSDK_NGX_Result FNGXD3D12RHI::Init_NGX_D3D12(const FNGXRHICreateArguments& InAr
 
 FNGXD3D12RHI::FNGXD3D12RHI(const FNGXRHICreateArguments& Arguments)
 	: NGXRHI(Arguments)
-	, D3D12RHI(static_cast<FD3D12DynamicRHI*>(Arguments.DynamicRHI))
+	, D3D12RHI(CastDynamicRHI<ID3D12DynamicRHI>(Arguments.DynamicRHI))
 
 {
-	ID3D12Device* Direct3DDevice = D3D12RHI->GetAdapter().GetD3DDevice();
+	// TODO: adapter index
+	ID3D12Device* Direct3DDevice = D3D12RHI->RHIGetDevice(0);
 
 	ensure(D3D12RHI);
 	ensure(Direct3DDevice);
@@ -146,28 +131,28 @@ FNGXD3D12RHI::FNGXD3D12RHI(const FNGXRHICreateArguments& Arguments)
 	UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_Init (Log %s) -> (%u %s)"), *NGXLogDir, ResultInit, GetNGXResultAsString(ResultInit));
 	
 	// store for the higher level code interpret
-	DLSSQueryFeature.DLSSInitResult = ResultInit;
+	NGXQueryFeature.NGXInitResult = ResultInit;
 
 	if (NVSDK_NGX_Result_FAIL_OutOfDate == ResultInit)
 	{
-		DLSSQueryFeature.DriverRequirements.DriverUpdateRequired = true;
+		NGXQueryFeature.NGXDriverRequirements.DriverUpdateRequired = true;
 	}
 	else if (NVSDK_NGX_SUCCEED(ResultInit))
 	{
 		bNGXInitialized = true;
 
-		NVSDK_NGX_Result ResultGetParameters = NVSDK_NGX_D3D12_GetCapabilityParameters(&DLSSQueryFeature.CapabilityParameters);
+		NVSDK_NGX_Result ResultGetParameters = NVSDK_NGX_D3D12_GetCapabilityParameters(&NGXQueryFeature.CapabilityParameters);
 
 		UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_GetCapabilityParameters -> (%u %s)"), ResultGetParameters, GetNGXResultAsString(ResultGetParameters));
 
 		if (NVSDK_NGX_Result_FAIL_OutOfDate == ResultGetParameters)
 		{
-			DLSSQueryFeature.DriverRequirements.DriverUpdateRequired = true;
+			NGXQueryFeature.NGXDriverRequirements.DriverUpdateRequired = true;
 		}
 
 		if (NVSDK_NGX_SUCCEED(ResultGetParameters))
 		{
-			DLSSQueryFeature.QueryDLSSSupport();
+			NGXQueryFeature.QueryDLSSSupport();
 		}
 	}
 }
@@ -181,17 +166,60 @@ FNGXD3D12RHI::~FNGXD3D12RHI()
 		ReleaseAllocatedFeatures();
 		
 		NVSDK_NGX_Result Result;
-		if (DLSSQueryFeature.CapabilityParameters != nullptr)
+		if (NGXQueryFeature.CapabilityParameters != nullptr)
 		{
-			Result = NVSDK_NGX_D3D12_DestroyParameters(DLSSQueryFeature.CapabilityParameters);
+			Result = NVSDK_NGX_D3D12_DestroyParameters(NGXQueryFeature.CapabilityParameters);
 			UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_DestroyParameters -> (%u %s)"), Result, GetNGXResultAsString(Result));
 		}
-		ID3D12Device* Direct3DDevice = D3D12RHI->GetAdapter().GetD3DDevice();
-		Result = NVSDK_NGX_D3D12_Shutdown1(Direct3DDevice);
-		UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_Shutdown1 -> (%u %s)"), Result, GetNGXResultAsString(Result));
+		if (IsSafeToShutdownNGX())
+		{
+			// TODO: adapter index
+			ID3D12Device* Direct3DDevice = D3D12RHI->RHIGetDevice(0);
+			Result = NVSDK_NGX_D3D12_Shutdown1(Direct3DDevice);
+			UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("NVSDK_NGX_D3D12_Shutdown1 -> (%u %s)"), Result, GetNGXResultAsString(Result));
+		}
 		bNGXInitialized = false;
 	}
 	UE_LOG(LogDLSSNGXD3D12RHI, Log, TEXT("%s Leave"), ANSI_TO_TCHAR(__FUNCTION__));
+}
+
+template <typename T>
+static T GetCommonEvalParams(ID3D12DynamicRHI* D3D12RHI, const FRHIDLSSArguments& InArguments)
+{
+	T EvalParams;
+	FMemory::Memzero(EvalParams);
+
+	EvalParams.InOutputSubrectBase.X = InArguments.DestRect.Min.X;
+	EvalParams.InOutputSubrectBase.Y = InArguments.DestRect.Min.Y;
+
+	EvalParams.InRenderSubrectDimensions.Width = InArguments.SrcRect.Width();
+	EvalParams.InRenderSubrectDimensions.Height = InArguments.SrcRect.Height();
+
+	EvalParams.InColorSubrectBase.X = InArguments.SrcRect.Min.X;
+	EvalParams.InColorSubrectBase.Y = InArguments.SrcRect.Min.Y;
+
+	EvalParams.pInDepth = D3D12RHI->RHIGetResource(InArguments.InputDepth);
+	EvalParams.InDepthSubrectBase.X = InArguments.SrcRect.Min.X;
+	EvalParams.InDepthSubrectBase.Y = InArguments.SrcRect.Min.Y;
+
+	EvalParams.pInMotionVectors = D3D12RHI->RHIGetResource(InArguments.InputMotionVectors);
+	// The VelocityCombine pass puts the motion vectors into the top left corner
+	EvalParams.InMVSubrectBase.X = 0;
+	EvalParams.InMVSubrectBase.Y = 0;
+
+	EvalParams.pInExposureTexture = InArguments.bUseAutoExposure ? nullptr : D3D12RHI->RHIGetResource(InArguments.InputExposure);
+	EvalParams.InPreExposure = InArguments.PreExposure;
+
+	EvalParams.InJitterOffsetX = InArguments.JitterOffset.X;
+	EvalParams.InJitterOffsetY = InArguments.JitterOffset.Y;
+
+	EvalParams.InMVScaleX = InArguments.MotionVectorScale.X;
+	EvalParams.InMVScaleY = InArguments.MotionVectorScale.Y;
+	EvalParams.InReset = InArguments.bReset;
+
+	EvalParams.InFrameTimeDeltaInMsec = InArguments.DeltaTimeMS;
+
+	return EvalParams;
 }
 
 void FNGXD3D12RHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArguments& InArguments, FDLSSStateRef InDLSSState)
@@ -202,8 +230,9 @@ void FNGXD3D12RHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArguments
 
 	InArguments.Validate();
 
-	FD3D12Device* Device = D3D12RHI->GetAdapter().GetDevice(CmdList.GetGPUMask().ToIndex());
-	ID3D12GraphicsCommandList* D3DGraphicsCommandList = Device->GetCommandContext().CommandListHandle.GraphicsCommandList();
+	const uint32 DeviceIndex = D3D12RHI->RHIGetResourceDeviceIndex(InArguments.InputColor);
+	ID3D12GraphicsCommandList* D3DGraphicsCommandList = D3D12RHI->RHIGetGraphicsCommandList(DeviceIndex);
+
 	if (InDLSSState->RequiresFeatureRecreation(InArguments))
 	{
 		check(!InDLSSState->DLSSFeature || InDLSSState->HasValidFeature());
@@ -224,81 +253,117 @@ void FNGXD3D12RHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArguments
 
 		ApplyCommonNGXParameterSettings(NewNGXParameterHandle, InArguments);
 
-		NVSDK_NGX_DLSS_Create_Params DlssCreateParams = InArguments.GetNGXDLSSCreateParams();
 		NVSDK_NGX_Handle* NewNGXFeatureHandle = nullptr;
 
 		const uint32 CreationNodeMask = 1 << InArguments.GPUNode;
 		const uint32 VisibilityNodeMask = InArguments.GPUVisibility;
 
-		NVSDK_NGX_Result ResultCreate = NGX_D3D12_CREATE_DLSS_EXT(
-			D3DGraphicsCommandList,
-			CreationNodeMask,
-			VisibilityNodeMask,
-			&NewNGXFeatureHandle,
-			NewNGXParameterHandle,
-			&DlssCreateParams
-		);
-		checkf(NVSDK_NGX_SUCCEED(ResultCreate), TEXT("NGX_D3D12_CREATE_DLSS_EXT (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) failed! (%u %s), %s"), CreationNodeMask, VisibilityNodeMask, ResultCreate, GetNGXResultAsString(ResultCreate), *InArguments.GetFeatureDesc().GetDebugDescription());
-		InDLSSState->DLSSFeature = MakeShared<FD3D12NGXDLSSFeature>(NewNGXFeatureHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+		if (InArguments.DenoiserMode == ENGXDLSSDenoiserMode::DLSSRR)
+		{
+			// DLSS-RR feature creation
+			NVSDK_NGX_DLSSD_Create_Params DlssRRCreateParams = InArguments.GetNGXDLSSRRCreateParams();
+			NVSDK_NGX_Result ResultCreate = NGX_D3D12_CREATE_DLSSD_EXT(
+				D3DGraphicsCommandList,
+				CreationNodeMask,
+				VisibilityNodeMask,
+				&NewNGXFeatureHandle,
+				NewNGXParameterHandle,
+				&DlssRRCreateParams
+			);
+			if (NVSDK_NGX_SUCCEED(ResultCreate))
+			{
+				InDLSSState->DLSSFeature = MakeShared<FD3D12NGXDLSSFeature>(NewNGXFeatureHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+				InDLSSState->DLSSFeature->bHasDLSSRR = true;
+			}
+			else
+			{
+				UE_LOG(LogDLSSNGXD3D12RHI, Error,
+					TEXT("NGX_D3D12_CREATE_DLSSD_EXT (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) failed, falling back to DLSS-SR! (%u %s), %s"),
+					CreationNodeMask,
+					VisibilityNodeMask,
+					ResultCreate,
+					GetNGXResultAsString(ResultCreate),
+					*InArguments.GetFeatureDesc().GetDebugDescription());
+				InDLSSState->DLSSFeature.Reset();
+			}
+		}
+		if (!InDLSSState->DLSSFeature.IsValid())
+		{
+			// DLSS-SR feature creation
+			NVSDK_NGX_DLSS_Create_Params DlssCreateParams = InArguments.GetNGXDLSSCreateParams();
+			NVSDK_NGX_Result ResultCreate = NGX_D3D12_CREATE_DLSS_EXT(
+				D3DGraphicsCommandList,
+				CreationNodeMask,
+				VisibilityNodeMask,
+				&NewNGXFeatureHandle,
+				NewNGXParameterHandle,
+				&DlssCreateParams
+			);
+			checkf(NVSDK_NGX_SUCCEED(ResultCreate), TEXT("NGX_D3D12_CREATE_DLSS_EXT (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) failed! (%u %s), %s"), CreationNodeMask, VisibilityNodeMask, ResultCreate, GetNGXResultAsString(ResultCreate), *InArguments.GetFeatureDesc().GetDebugDescription());
+			InDLSSState->DLSSFeature = MakeShared<FD3D12NGXDLSSFeature>(NewNGXFeatureHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+		}
+
 		RegisterFeature(InDLSSState->DLSSFeature);
 	}
 
 	check(InDLSSState->HasValidFeature());
 
 	// execute
+	//TODO: replaced with what in 5.1? will something be missing from gpu profiling? see commit 305e264e
+#if 0
 	if (Device->GetCommandContext().IsDefaultContext())
 	{
 		Device->RegisterGPUWork(1);
 	}
+#endif
 
-	NVSDK_NGX_D3D12_DLSS_Eval_Params DlssEvalParams;
-	FMemory::Memzero(DlssEvalParams);
+	if (!InDLSSState->DLSSFeature->bHasDLSSRR)
+	{
+		NVSDK_NGX_D3D12_DLSS_Eval_Params DlssEvalParams = GetCommonEvalParams<NVSDK_NGX_D3D12_DLSS_Eval_Params>(D3D12RHI, InArguments);
 
-	DlssEvalParams.Feature.pInOutput = GetD3D12TextureFromRHITexture(InArguments.OutputColor, InArguments.GPUNode)->GetResource()->GetResource();
-	DlssEvalParams.InOutputSubrectBase.X = InArguments.DestRect.Min.X;
-	DlssEvalParams.InOutputSubrectBase.Y = InArguments.DestRect.Min.Y;
+		//TODO: does RHIGetResource do the right thing with multiple GPUs?
+		DlssEvalParams.Feature.pInOutput = D3D12RHI->RHIGetResource(InArguments.OutputColor);
+		DlssEvalParams.Feature.pInColor = D3D12RHI->RHIGetResource(InArguments.InputColor);
+		DlssEvalParams.Feature.InSharpness = InArguments.Sharpness;
 
-	DlssEvalParams.InRenderSubrectDimensions.Width = InArguments.SrcRect.Width();
-	DlssEvalParams.InRenderSubrectDimensions.Height = InArguments.SrcRect.Height();
+		NVSDK_NGX_Result ResultEvaluate = NGX_D3D12_EVALUATE_DLSS_EXT(
+			D3DGraphicsCommandList,
+			InDLSSState->DLSSFeature->Feature,
+			InDLSSState->DLSSFeature->Parameter,
+			&DlssEvalParams
+		);
+		checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_D3D12_EVALUATE_DLSS_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
+	}
+	else
+	{
+		NVSDK_NGX_D3D12_DLSSD_Eval_Params DlssRREvalParams = GetCommonEvalParams<NVSDK_NGX_D3D12_DLSSD_Eval_Params>(D3D12RHI, InArguments);
+		DlssRREvalParams.pInOutput = D3D12RHI->RHIGetResource(InArguments.OutputColor);
+		DlssRREvalParams.pInColor = D3D12RHI->RHIGetResource(InArguments.InputColor);
 
-	DlssEvalParams.Feature.pInColor = GetD3D12TextureFromRHITexture(InArguments.InputColor, InArguments.GPUNode)->GetResource()->GetResource();
-	DlssEvalParams.InColorSubrectBase.X = InArguments.SrcRect.Min.X;
-	DlssEvalParams.InColorSubrectBase.Y = InArguments.SrcRect.Min.Y;
+		// The GBufferResolve pass puts the albedos into the top left corner
+		DlssRREvalParams.pInDiffuseAlbedo = D3D12RHI->RHIGetResource(InArguments.InputDiffuseAlbedo);
+		DlssRREvalParams.InDiffuseAlbedoSubrectBase.X = 0;
+		DlssRREvalParams.InDiffuseAlbedoSubrectBase.Y = 0;
 
-	DlssEvalParams.pInDepth = GetD3D12TextureFromRHITexture(InArguments.InputDepth, InArguments.GPUNode)->GetResource()->GetResource();
-	DlssEvalParams.InDepthSubrectBase.X = InArguments.SrcRect.Min.X;
-	DlssEvalParams.InDepthSubrectBase.Y = InArguments.SrcRect.Min.Y;
+		DlssRREvalParams.pInSpecularAlbedo = D3D12RHI->RHIGetResource(InArguments.InputSpecularAlbedo);
+		DlssRREvalParams.InSpecularAlbedoSubrectBase.X = 0;
+		DlssRREvalParams.InSpecularAlbedoSubrectBase.Y = 0;
 
-	DlssEvalParams.pInMotionVectors = GetD3D12TextureFromRHITexture(InArguments.InputMotionVectors, InArguments.GPUNode)->GetResource()->GetResource();
-	// The VelocityCombine pass puts the motion vectors into the top left corner
-	DlssEvalParams.InMVSubrectBase.X = 0;
-	DlssEvalParams.InMVSubrectBase.Y = 0;
+		DlssRREvalParams.pInNormals = D3D12RHI->RHIGetResource(InArguments.InputNormals);
+		DlssRREvalParams.pInRoughness = D3D12RHI->RHIGetResource(InArguments.InputRoughness);
 
-	DlssEvalParams.pInExposureTexture = InArguments.bUseAutoExposure ? nullptr : GetD3D12TextureFromRHITexture(InArguments.InputExposure, InArguments.GPUNode)->GetResource()->GetResource();
-	DlssEvalParams.InPreExposure = InArguments.PreExposure;
+		NVSDK_NGX_Result ResultEvaluate = NGX_D3D12_EVALUATE_DLSSD_EXT(
+			D3DGraphicsCommandList,
+			InDLSSState->DLSSFeature->Feature,
+			InDLSSState->DLSSFeature->Parameter,
+			&DlssRREvalParams
+		);
+		checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_D3D12_EVALUATE_DLSSD_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
+	}
 
-	DlssEvalParams.Feature.InSharpness = InArguments.Sharpness;
-	DlssEvalParams.InJitterOffsetX = InArguments.JitterOffset.X;
-	DlssEvalParams.InJitterOffsetY = InArguments.JitterOffset.Y;
-
-	DlssEvalParams.InMVScaleX = InArguments.MotionVectorScale.X;
-	DlssEvalParams.InMVScaleY = InArguments.MotionVectorScale.Y;
-	DlssEvalParams.InReset = InArguments.bReset;
-
-	DlssEvalParams.InFrameTimeDeltaInMsec = InArguments.DeltaTime;
-
-	NVSDK_NGX_Result ResultEvaluate = NGX_D3D12_EVALUATE_DLSS_EXT(
-		D3DGraphicsCommandList,
-		InDLSSState->DLSSFeature->Feature,
-		InDLSSState->DLSSFeature->Parameter,
-		&DlssEvalParams
-	);
-	checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_D3D12_EVALUATE_DLSS_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
 	InDLSSState->DLSSFeature->Tick(FrameCounter);
 
-	Device->GetCommandContext().StateCache.ForceSetComputeRootSignature();
-	Device->GetCommandContext().StateCache.GetDescriptorCache()->SetCurrentCommandList(Device->GetCommandContext().CommandListHandle);
-	
+	D3D12RHI->RHIFinishExternalComputeWork(DeviceIndex, D3DGraphicsCommandList);
 }
 
 /** IModuleInterface implementation */

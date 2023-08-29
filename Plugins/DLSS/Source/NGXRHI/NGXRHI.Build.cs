@@ -53,6 +53,7 @@ public class NGXRHI : ModuleRules
 
 					"Core",
 					"Engine",
+					"Projects",
 					"RenderCore",
 					"RHI",
 

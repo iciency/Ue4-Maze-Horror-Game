@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
 * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
 * property and proprietary rights in and to this material, related
@@ -25,10 +25,9 @@ public class DLSSUtility : ModuleRules
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				Path.Combine(EngineDirectory,"Source/Runtime/Renderer/Private"),
+				Path.Combine(GetModuleDirectory("Renderer"), "Private"),
 			}
 			);
-			
 		
 		PublicDependencyModuleNames.AddRange(
 			new string[]
@@ -36,7 +35,6 @@ public class DLSSUtility : ModuleRules
 				"Core",
 				"RenderCore",
 				"Renderer",
-					
 			}
 			);
 			
@@ -49,9 +47,5 @@ public class DLSSUtility : ModuleRules
 					"Projects"
 			}
 			);
-
-		// 4.x and early access 5.0 engines used FVector2D type instead of FVector2f type for shader parameters
-		bool bEngineUsesFVector2D = (Target.Version.MajorVersion == 4) || (Target.Version.BranchName == "++UE5+Release-5.0-EarlyAccess");
-		PrivateDefinitions.Add(string.Format("DLSS_ENGINE_USES_FVECTOR2D={0}", bEngineUsesFVector2D ? "1" : "0"));
 	}
 }

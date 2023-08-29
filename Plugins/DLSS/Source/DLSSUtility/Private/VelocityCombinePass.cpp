@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
 * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
 * property and proprietary rights in and to this material, related
@@ -11,6 +11,16 @@
 
 #include "VelocityCombinePass.h"
 
+#include "RenderGraphUtils.h"
+#include "Runtime/Launch/Resources/Version.h"
+#include "ScreenPass.h"
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2
+#include "DataDrivenShaderPlatformInfo.h"
+#endif
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION < 3
+#include "ScenePrivate.h"
+#endif
 
 const int32 kVelocityCombineComputeTileSizeX = FComputeShaderUtils::kGolden2DGroupSize;
 const int32 kVelocityCombineComputeTileSizeY = FComputeShaderUtils::kGolden2DGroupSize;
@@ -26,13 +36,8 @@ public:
 		// Only cook for the platforms/RHIs where DLSS is supported, which is DX11,DX12 and Vulkan [on Win64]
 		return 	IsFeatureLevelSupported(Parameters.Platform, ERHIFeatureLevel::SM5) &&
 				IsPCPlatform(Parameters.Platform) && (
-					IsVulkanSM5Platform(Parameters.Platform) ||
-#if (ENGINE_MAJOR_VERSION == 4) && (ENGINE_MINOR_VERSION == 26)
-					IsD3DPlatform(Parameters.Platform, false));
-#else
+					IsVulkanPlatform(Parameters.Platform) ||
 					IsD3DPlatform(Parameters.Platform));
-#endif
-				
 	}
 
 	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
@@ -55,11 +60,7 @@ public:
 		SHADER_PARAMETER_RDG_TEXTURE(Texture2D, DepthTexture)
 		SHADER_PARAMETER_SAMPLER(SamplerState, DepthTextureSampler)
 
-#if DLSS_ENGINE_USES_FVECTOR2D
-		SHADER_PARAMETER(FVector2D, TemporalJitterPixels)
-#else
 		SHADER_PARAMETER(FVector2f, TemporalJitterPixels)
-#endif
 
 		SHADER_PARAMETER_STRUCT_REF(FViewUniformShaderParameters, View)
 		
@@ -75,14 +76,20 @@ IMPLEMENT_GLOBAL_SHADER(FVelocityCombineCS, "/Plugin/DLSS/Private/VelocityCombin
 
 FRDGTextureRef AddVelocityCombinePass(
 	FRDGBuilder& GraphBuilder,
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
+	const FSceneView& View,
+#else
 	const FViewInfo& View,
+#endif
 	FRDGTextureRef InSceneDepthTexture,
 	FRDGTextureRef InVelocityTexture,
+	FIntRect InputViewRect,
+	FIntRect DLSSOutputViewRect,
+	FVector2f TemporalJitterPixels,
 	bool bDilateMotionVectors
 )
 {
-	const FIntRect InputViewRect = View.ViewRect;
-	const FIntRect OutputViewRect = FIntRect( FIntPoint::ZeroValue, bDilateMotionVectors ? View.GetSecondaryViewRectSize() : View.ViewRect.Size());
+	const FIntRect OutputViewRect = FIntRect( FIntPoint::ZeroValue, bDilateMotionVectors ? DLSSOutputViewRect.Size() : InputViewRect.Size());
 
 	FRDGTextureDesc CombinedVelocityDesc = FRDGTextureDesc::Create2D(
 		OutputViewRect.Size(),
@@ -124,19 +131,15 @@ FRDGTextureRef AddVelocityCombinePass(
 
 	// various state
 	{
-
-#if ENGINE_MAJOR_VERSION < 5
-		PassParameters->TemporalJitterPixels = View.TemporalJitterPixels;
-#else
-		PassParameters->TemporalJitterPixels = FVector2f(View.TemporalJitterPixels); // LWC_TODO: Precision loss
-#endif
+		PassParameters->TemporalJitterPixels = TemporalJitterPixels;
 		PassParameters->View = View.ViewUniformBuffer;
 	}
 
 	FVelocityCombineCS::FPermutationDomain PermutationVector;
 	PermutationVector.Set<FDilateMotionVectorsDim>(bDilateMotionVectors);
 
-	TShaderMapRef<FVelocityCombineCS> ComputeShader(View.ShaderMap, PermutationVector);
+	const FGlobalShaderMap* ShaderMap = GetGlobalShaderMap(View.GetFeatureLevel());
+	TShaderMapRef<FVelocityCombineCS> ComputeShader(ShaderMap, PermutationVector);
 
 	FComputeShaderUtils::AddPass(
 		GraphBuilder,

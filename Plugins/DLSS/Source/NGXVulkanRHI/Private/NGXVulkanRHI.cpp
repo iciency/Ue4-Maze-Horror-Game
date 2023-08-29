@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2020 - 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
 * NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
 * property and proprietary rights in and to this material, related
@@ -11,13 +11,11 @@
 
 #include "NGXVulkanRHI.h"
 
-#include "VulkanRHIPrivate.h"
-#include "VulkanPendingState.h"
-#include "VulkanRHIBridge.h"
-#include "VulkanContext.h"
+#include "IVulkanDynamicRHI.h"
 
 #include "nvsdk_ngx_vk.h"
 #include "nvsdk_ngx_helpers_vk.h"
+#include "nvsdk_ngx_helpers_dlssd_vk.h"
 
 #include "GenericPlatform/GenericPlatformFile.h"
 
@@ -56,8 +54,7 @@ public:
 	virtual ~FNGXVulkanRHI();
 private:
 
-	FVulkanDynamicRHI* VulkanRHI = nullptr;
-	FVulkanDevice* VulkanDevice = nullptr;
+	IVulkanDynamicRHI* VulkanRHI = nullptr;
 
 	NVSDK_NGX_Result Init_NGX_VK(const FNGXRHICreateArguments& InArguments, const wchar_t* InApplicationDataPath, VkInstance InInstance, VkPhysicalDevice InPD, VkDevice InDevice, const NVSDK_NGX_FeatureCommonInfo* InFeatureInfo);
 	static bool IsIncompatibleAPICaptureToolActive();
@@ -87,7 +84,7 @@ NVSDK_NGX_Result FNGXVulkanRHI::Init_NGX_VK(const FNGXRHICreateArguments& InArgu
 			UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_Init(ProjectID = %s, EngineVersion=%s, APIVersion = 0x%x) -> (%u %s)"), *InArguments.UnrealProjectID, *InArguments.UnrealEngineVersion, APIVersion, Result, GetNGXResultAsString(Result));
 		}
 
-		if (NVSDK_NGX_FAILED(Result))
+		if (NVSDK_NGX_FAILED(Result) && IsSafeToShutdownNGX())
 		{
 			NVSDK_NGX_VULKAN_Shutdown1(InDevice);
 		}
@@ -106,46 +103,44 @@ NVSDK_NGX_Result FNGXVulkanRHI::Init_NGX_VK(const FNGXRHICreateArguments& InArgu
 
 FNGXVulkanRHI::FNGXVulkanRHI(const FNGXRHICreateArguments& Arguments)
 	: NGXRHI(Arguments)
-	, VulkanRHI(static_cast<FVulkanDynamicRHI*>(Arguments.DynamicRHI))
-	, VulkanDevice(VulkanRHIBridge::GetDevice(VulkanRHI)
-)
+	, VulkanRHI(CastDynamicRHI<IVulkanDynamicRHI>(Arguments.DynamicRHI))
 {
-	ensure(VulkanRHI);
+	check(VulkanRHI);
 
 	const FString NGXLogDir = GetNGXLogDirectory();
 	IPlatformFile::GetPlatformPhysical().CreateDirectoryTree(*NGXLogDir);
 
 	bIsIncompatibleAPICaptureToolActive = IsIncompatibleAPICaptureToolActive();
 
-	VkInstance VulkanInstance = reinterpret_cast<VkInstance>(VulkanRHIBridge::GetInstance(VulkanRHI));
-	VkPhysicalDevice VulkanPhysicalDevice = reinterpret_cast<VkPhysicalDevice>(VulkanRHIBridge::GetPhysicalDevice(VulkanDevice));
-	VkDevice VulkanLogicalDevice = reinterpret_cast<VkDevice>(VulkanRHIBridge::GetLogicalDevice(VulkanDevice));
+	VkInstance VulkanInstance = VulkanRHI->RHIGetVkInstance();
+	VkPhysicalDevice VulkanPhysicalDevice = VulkanRHI->RHIGetVkPhysicalDevice();
+	VkDevice VulkanLogicalDevice = VulkanRHI->RHIGetVkDevice();
 
 	NVSDK_NGX_Result ResultInit = Init_NGX_VK(Arguments, *NGXLogDir, VulkanInstance, VulkanPhysicalDevice, VulkanLogicalDevice, CommonFeatureInfo());
 	UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_Init (Log %s) -> (%u %s)"), *NGXLogDir, ResultInit, GetNGXResultAsString(ResultInit));
-	
+
 	// store for the higher level code interpret
-	DLSSQueryFeature.DLSSInitResult = ResultInit;
+	NGXQueryFeature.NGXInitResult = ResultInit;
 
 	if (NVSDK_NGX_Result_FAIL_OutOfDate == ResultInit)
 	{
-		DLSSQueryFeature.DriverRequirements.DriverUpdateRequired = true;
+		NGXQueryFeature.NGXDriverRequirements.DriverUpdateRequired = true;
 	}
 	else if (NVSDK_NGX_SUCCEED(ResultInit))
 	{
 		bNGXInitialized = true;
 
-		NVSDK_NGX_Result ResultGetParameters = NVSDK_NGX_VULKAN_GetCapabilityParameters(&DLSSQueryFeature.CapabilityParameters);
+		NVSDK_NGX_Result ResultGetParameters = NVSDK_NGX_VULKAN_GetCapabilityParameters(&NGXQueryFeature.CapabilityParameters);
 		UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_GetCapabilityParameters -> (%u %s)"), ResultGetParameters, GetNGXResultAsString(ResultGetParameters));
 
 		if (NVSDK_NGX_Result_FAIL_OutOfDate == ResultGetParameters)
 		{
-			DLSSQueryFeature.DriverRequirements.DriverUpdateRequired = true;
+			NGXQueryFeature.NGXDriverRequirements.DriverUpdateRequired = true;
 		}
 
 		if (NVSDK_NGX_SUCCEED(ResultGetParameters))
 		{
-			DLSSQueryFeature.QueryDLSSSupport();
+			NGXQueryFeature.QueryDLSSSupport();
 		}
 	}
 }
@@ -157,16 +152,19 @@ FNGXVulkanRHI::~FNGXVulkanRHI()
 	{
 		// Destroy the parameters and features before we call NVSDK_NGX_VULKAN_Shutdown1
 		ReleaseAllocatedFeatures();
-		
+
 		NVSDK_NGX_Result Result;
-		if (DLSSQueryFeature.CapabilityParameters != nullptr)
+		if (NGXQueryFeature.CapabilityParameters != nullptr)
 		{
-			Result = NVSDK_NGX_VULKAN_DestroyParameters(DLSSQueryFeature.CapabilityParameters);
+			Result = NVSDK_NGX_VULKAN_DestroyParameters(NGXQueryFeature.CapabilityParameters);
 			UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_DestroyParameters -> (%u %s)"), Result, GetNGXResultAsString(Result));
 		}
-		VkDevice VulkanLogicalDevice = reinterpret_cast<VkDevice>(VulkanRHIBridge::GetLogicalDevice(VulkanDevice));
-		Result = NVSDK_NGX_VULKAN_Shutdown1(VulkanLogicalDevice);
-		UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_Shutdown1 -> (%u %s)"), Result, GetNGXResultAsString(Result));
+		if (IsSafeToShutdownNGX())
+		{
+			VkDevice VulkanLogicalDevice = VulkanRHI->RHIGetVkDevice();
+			Result = NVSDK_NGX_VULKAN_Shutdown1(VulkanLogicalDevice);
+			UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("NVSDK_NGX_VULKAN_Shutdown1 -> (%u %s)"), Result, GetNGXResultAsString(Result));
+		}
 		bNGXInitialized = false;
 	}
 	UE_LOG(LogDLSSNGXVulkanRHI, Log, TEXT("%s Leave"), ANSI_TO_TCHAR(__FUNCTION__));
@@ -180,8 +178,7 @@ void FNGXVulkanRHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArgument
 
 	InArguments.Validate();
 
-	FVulkanCommandListContextImmediate& ImmediateContext = VulkanDevice->GetImmediateContext();
-	VkCommandBuffer VulkanCommandBuffer = ImmediateContext.GetCommandBufferManager()->GetActiveCmdBuffer()->GetHandle();
+	VkCommandBuffer VulkanCommandBuffer = VulkanRHI->RHIGetActiveVkCommandBuffer();
 	
 	if (InDLSSState->RequiresFeatureRecreation(InArguments))
 	{
@@ -197,37 +194,76 @@ void FNGXVulkanRHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArgument
 
 	if (!InDLSSState->DLSSFeature)
 	{
+		VkDevice VulkanLogicalDevice = VulkanRHI->RHIGetVkDevice();
 		NVSDK_NGX_Parameter* NewNGXParameterHandle = nullptr;
 		NVSDK_NGX_Result Result = NVSDK_NGX_VULKAN_AllocateParameters(&NewNGXParameterHandle);
 		checkf(NVSDK_NGX_SUCCEED(Result), TEXT("NVSDK_NGX_VULKAN_AllocateParameters failed! (%u %s)"), Result, GetNGXResultAsString(Result));
 		
 		ApplyCommonNGXParameterSettings(NewNGXParameterHandle, InArguments);
 
-		NVSDK_NGX_DLSS_Create_Params DlssCreateParams = InArguments.GetNGXDLSSCreateParams();
-		NVSDK_NGX_Handle* NewNGXHandle = nullptr;
+		if (InArguments.DenoiserMode == ENGXDLSSDenoiserMode::DLSSRR)
+		{
+			// DLSS-SR feature creation
+			NVSDK_NGX_DLSSD_Create_Params DlssRRCreateParams = InArguments.GetNGXDLSSRRCreateParams();
+			NVSDK_NGX_Handle* NewNGXFeatureHandle = nullptr;
 
-		const uint32 CreationNodeMask = 1 << InArguments.GPUNode;
-		const uint32 VisibilityNodeMask = InArguments.GPUVisibility;
+			const uint32 CreationNodeMask = 1 << InArguments.GPUNode;
+			const uint32 VisibilityNodeMask = InArguments.GPUVisibility;
 
-		NVSDK_NGX_Result ResultCreate = NGX_VULKAN_CREATE_DLSS_EXT(
-			VulkanCommandBuffer,
-			CreationNodeMask,
-			VisibilityNodeMask,
-			&NewNGXHandle,
-			NewNGXParameterHandle,
-			&DlssCreateParams);
+			NVSDK_NGX_Result ResultCreate = NGX_VULKAN_CREATE_DLSSD_EXT1(
+				VulkanLogicalDevice,
+				VulkanCommandBuffer,
+				CreationNodeMask,
+				VisibilityNodeMask,
+				&NewNGXFeatureHandle,
+				NewNGXParameterHandle,
+				&DlssRRCreateParams);
 
-		checkf(NVSDK_NGX_SUCCEED(ResultCreate), TEXT("NGX_VULKAN_CREATE_DLSS failed! (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) (%u %s), %s"), CreationNodeMask, VisibilityNodeMask, ResultCreate, GetNGXResultAsString(ResultCreate), *InArguments.GetFeatureDesc().GetDebugDescription());
-		InDLSSState->DLSSFeature = MakeShared<FVulkanNGXDLSSFeature>(NewNGXHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+			if (NVSDK_NGX_SUCCEED(ResultCreate))
+			{
+				InDLSSState->DLSSFeature = MakeShared<FVulkanNGXDLSSFeature>(NewNGXFeatureHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+				InDLSSState->DLSSFeature->bHasDLSSRR = true;
+			}
+			else
+			{
+				UE_LOG(LogDLSSNGXVulkanRHI, Error,
+					TEXT("NGX_VULKAN_CREATE_DLSSD_EXT1 failed, falling back to DLSS-SR! (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) (%u %s), %s"),
+					CreationNodeMask,
+					VisibilityNodeMask,
+					ResultCreate,
+					GetNGXResultAsString(ResultCreate),
+					*InArguments.GetFeatureDesc().GetDebugDescription());
+				InDLSSState->DLSSFeature.Reset();
+			}
+		}
+		if (!InDLSSState->DLSSFeature.IsValid())
+		{
+			// DLSS-SR feature creation
+			NVSDK_NGX_DLSS_Create_Params DlssCreateParams = InArguments.GetNGXDLSSCreateParams();
+			NVSDK_NGX_Handle* NewNGXFeatureHandle = nullptr;
+
+			const uint32 CreationNodeMask = 1 << InArguments.GPUNode;
+			const uint32 VisibilityNodeMask = InArguments.GPUVisibility;
+
+			NVSDK_NGX_Result ResultCreate = NGX_VULKAN_CREATE_DLSS_EXT(
+				VulkanCommandBuffer,
+				CreationNodeMask,
+				VisibilityNodeMask,
+				&NewNGXFeatureHandle,
+				NewNGXParameterHandle,
+				&DlssCreateParams);
+
+			checkf(NVSDK_NGX_SUCCEED(ResultCreate), TEXT("NGX_VULKAN_CREATE_DLSS failed! (CreationNodeMask=0x%x VisibilityNodeMask=0x%x) (%u %s), %s"), CreationNodeMask, VisibilityNodeMask, ResultCreate, GetNGXResultAsString(ResultCreate), *InArguments.GetFeatureDesc().GetDebugDescription());
+			InDLSSState->DLSSFeature = MakeShared<FVulkanNGXDLSSFeature>(NewNGXFeatureHandle, NewNGXParameterHandle, InArguments.GetFeatureDesc(), FrameCounter);
+		}
+
 		RegisterFeature(InDLSSState->DLSSFeature);
 	}
-	
+
 	check(InDLSSState->HasValidFeature());
 
 	// execute
-	NVSDK_NGX_VK_DLSS_Eval_Params DlssEvalParams;
-	FMemory::Memzero(DlssEvalParams);
-	auto NGXVulkanResourceFromRHITexture = [](FRHITexture* InRHITexture)
+	auto NGXVulkanResourceFromRHITexture = [VulkanRHI=VulkanRHI](FRHITexture* InRHITexture)
 	{
 		check(InRHITexture);
 		if (FRHITextureReference* TexRef = InRHITexture->GetTextureReference())
@@ -236,7 +272,7 @@ void FNGXVulkanRHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArgument
 			check(InRHITexture);
 		}
 
-		FVulkanTextureBase* VulkanTexture = static_cast<FVulkanTextureBase*>(InRHITexture->GetTextureBaseRHI());
+		const FVulkanRHIImageViewInfo ImageViewInfo = VulkanRHI->RHIGetImageViewInfo(InRHITexture);
 
 		NVSDK_NGX_Resource_VK NGXTexture;
 		FMemory::Memzero(NGXTexture);
@@ -244,90 +280,150 @@ void FNGXVulkanRHI::ExecuteDLSS(FRHICommandList& CmdList, const FRHIDLSSArgument
 		NGXTexture.Type = NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW;
 
 		// Check for VK_IMAGE_USAGE_STORAGE_BIT. Those are not directly stored but FVulkanSurface::GenerateImageCreateInfo sets the VK flag based on those UEFlags
-		NGXTexture.ReadWrite = EnumHasAnyFlags(VulkanTexture->Surface.UEFlags, TexCreate_Presentable | TexCreate_UAV);
+		NGXTexture.ReadWrite = EnumHasAnyFlags(ImageViewInfo.UEFlags, TexCreate_Presentable | TexCreate_UAV);
 
-		NGXTexture.Resource.ImageViewInfo.ImageView = VulkanTexture->DefaultView.View;
-		NGXTexture.Resource.ImageViewInfo.Image = VulkanTexture->DefaultView.Image;
-		NGXTexture.Resource.ImageViewInfo.Format = VulkanTexture->Surface.ViewFormat;
+		NGXTexture.Resource.ImageViewInfo.ImageView = ImageViewInfo.ImageView;
+		NGXTexture.Resource.ImageViewInfo.Image = ImageViewInfo.Image;
+		NGXTexture.Resource.ImageViewInfo.Format = ImageViewInfo.Format;
 
-		NGXTexture.Resource.ImageViewInfo.Width = VulkanTexture->Surface.Width;
-		NGXTexture.Resource.ImageViewInfo.Height = VulkanTexture->Surface.Height;
-		check(VulkanTexture->Surface.Depth == 1);
+		NGXTexture.Resource.ImageViewInfo.Width = ImageViewInfo.Width;
+		NGXTexture.Resource.ImageViewInfo.Height = ImageViewInfo.Height;
+		check(ImageViewInfo.Depth == 1);
 
-		NGXTexture.Resource.ImageViewInfo.SubresourceRange.aspectMask = VulkanTexture->Surface.GetFullAspectMask();
-
-		NGXTexture.Resource.ImageViewInfo.SubresourceRange.layerCount = VulkanTexture->Surface.GetNumberOfArrayLevels();
-		NGXTexture.Resource.ImageViewInfo.SubresourceRange.levelCount = VulkanTexture->Surface.GetNumMips();
+		NGXTexture.Resource.ImageViewInfo.SubresourceRange = ImageViewInfo.SubresourceRange;
 
 		// DLSS_TODO Figure out where to get those from if the textures are arrayed or mipped.
-		check(VulkanTexture->Surface.GetNumberOfArrayLevels() == 1);
-		check(VulkanTexture->Surface.GetNumMips() == 1);
-		NGXTexture.Resource.ImageViewInfo.SubresourceRange.baseMipLevel = 0;
-		NGXTexture.Resource.ImageViewInfo.SubresourceRange.baseArrayLayer = 0;
+		check(NGXTexture.Resource.ImageViewInfo.SubresourceRange.layerCount == 1);
+		check(NGXTexture.Resource.ImageViewInfo.SubresourceRange.levelCount == 1);
 
 		return NGXTexture;
 	};
 
-	NVSDK_NGX_Resource_VK InOutput = NGXVulkanResourceFromRHITexture(InArguments.OutputColor);
-	DlssEvalParams.Feature.pInOutput = &InOutput;
-	check(InArguments.OutputColor->GetFlags() & ( TexCreate_UAV | TexCreate_Presentable));
-	check(InOutput.ReadWrite == true);
-	DlssEvalParams.InOutputSubrectBase.X = InArguments.DestRect.Min.X;
-	DlssEvalParams.InOutputSubrectBase.Y = InArguments.DestRect.Min.Y;
+	if (InDLSSState->DLSSFeature->bHasDLSSRR)
+	{
+		NVSDK_NGX_VK_DLSSD_Eval_Params DlssRREvalParams;
+		FMemory::Memzero(DlssRREvalParams);
+		NVSDK_NGX_Resource_VK InOutput = NGXVulkanResourceFromRHITexture(InArguments.OutputColor);
+		DlssRREvalParams.pInOutput = &InOutput;
+		check(InArguments.OutputColor->GetFlags() & (TexCreate_UAV | TexCreate_Presentable));
+		check(InOutput.ReadWrite == true);
+		DlssRREvalParams.InOutputSubrectBase.X = InArguments.DestRect.Min.X;
+		DlssRREvalParams.InOutputSubrectBase.Y = InArguments.DestRect.Min.Y;
 
-	DlssEvalParams.InRenderSubrectDimensions.Width = InArguments.SrcRect.Width();
-	DlssEvalParams.InRenderSubrectDimensions.Height = InArguments.SrcRect.Height();
+		DlssRREvalParams.InRenderSubrectDimensions.Width = InArguments.SrcRect.Width();
+		DlssRREvalParams.InRenderSubrectDimensions.Height = InArguments.SrcRect.Height();
 
-	NVSDK_NGX_Resource_VK InColor = NGXVulkanResourceFromRHITexture(InArguments.InputColor);
-	DlssEvalParams.Feature.pInColor = &InColor;
-	DlssEvalParams.InColorSubrectBase.X = InArguments.SrcRect.Min.X;
-	DlssEvalParams.InColorSubrectBase.Y = InArguments.SrcRect.Min.Y;
+		NVSDK_NGX_Resource_VK InColor = NGXVulkanResourceFromRHITexture(InArguments.InputColor);
+		DlssRREvalParams.pInColor = &InColor;
+		DlssRREvalParams.InColorSubrectBase.X = InArguments.SrcRect.Min.X;
+		DlssRREvalParams.InColorSubrectBase.Y = InArguments.SrcRect.Min.Y;
 
-	NVSDK_NGX_Resource_VK InDepth = NGXVulkanResourceFromRHITexture(InArguments.InputDepth);
-	DlssEvalParams.pInDepth = &InDepth;
-	DlssEvalParams.InDepthSubrectBase.X = InArguments.SrcRect.Min.X;
-	DlssEvalParams.InDepthSubrectBase.Y = InArguments.SrcRect.Min.Y;
+		NVSDK_NGX_Resource_VK InDepth = NGXVulkanResourceFromRHITexture(InArguments.InputDepth);
+		DlssRREvalParams.pInDepth = &InDepth;
+		DlssRREvalParams.InDepthSubrectBase.X = InArguments.SrcRect.Min.X;
+		DlssRREvalParams.InDepthSubrectBase.Y = InArguments.SrcRect.Min.Y;
 
-	NVSDK_NGX_Resource_VK InMotionVectors = NGXVulkanResourceFromRHITexture(InArguments.InputMotionVectors);
-	DlssEvalParams.pInMotionVectors = &InMotionVectors;
-	// The VelocityCombine pass puts the motion vectors into the top left corner
-	DlssEvalParams.InMVSubrectBase.X = 0;
-	DlssEvalParams.InMVSubrectBase.Y = 0;
+		NVSDK_NGX_Resource_VK InMotionVectors = NGXVulkanResourceFromRHITexture(InArguments.InputMotionVectors);
+		DlssRREvalParams.pInMotionVectors = &InMotionVectors;
+		// The VelocityCombine pass puts the motion vectors into the top left corner
+		DlssRREvalParams.InMVSubrectBase.X = 0;
+		DlssRREvalParams.InMVSubrectBase.Y = 0;
 
-	NVSDK_NGX_Resource_VK InExposureTexture = NGXVulkanResourceFromRHITexture(InArguments.InputExposure);
-	DlssEvalParams.pInExposureTexture = InArguments.bUseAutoExposure ? nullptr : &InExposureTexture;
-	DlssEvalParams.InPreExposure = InArguments.PreExposure;
+		NVSDK_NGX_Resource_VK InExposureTexture = NGXVulkanResourceFromRHITexture(InArguments.InputExposure);
+		DlssRREvalParams.pInExposureTexture = InArguments.bUseAutoExposure ? nullptr : &InExposureTexture;
+		DlssRREvalParams.InPreExposure = InArguments.PreExposure;
 
-	DlssEvalParams.Feature.InSharpness = InArguments.Sharpness;
-	DlssEvalParams.InJitterOffsetX = InArguments.JitterOffset.X;
-	DlssEvalParams.InJitterOffsetY = InArguments.JitterOffset.Y;
+		DlssRREvalParams.InJitterOffsetX = InArguments.JitterOffset.X;
+		DlssRREvalParams.InJitterOffsetY = InArguments.JitterOffset.Y;
 
-	DlssEvalParams.InMVScaleX = InArguments.MotionVectorScale.X;
-	DlssEvalParams.InMVScaleY = InArguments.MotionVectorScale.Y;
-	DlssEvalParams.InReset = InArguments.bReset;
+		DlssRREvalParams.InMVScaleX = InArguments.MotionVectorScale.X;
+		DlssRREvalParams.InMVScaleY = InArguments.MotionVectorScale.Y;
+		DlssRREvalParams.InReset = InArguments.bReset;
 
+		DlssRREvalParams.InFrameTimeDeltaInMsec = InArguments.DeltaTimeMS;
 
-	DlssEvalParams.InFrameTimeDeltaInMsec = InArguments.DeltaTime;
+		// The GBufferResolve pass puts the albedos into the top left corner
+		NVSDK_NGX_Resource_VK InDiffuseAlbedoTexture = NGXVulkanResourceFromRHITexture(InArguments.InputDiffuseAlbedo);
+		DlssRREvalParams.pInDiffuseAlbedo = &InDiffuseAlbedoTexture;
+		DlssRREvalParams.InDiffuseAlbedoSubrectBase.X = 0;
+		DlssRREvalParams.InDiffuseAlbedoSubrectBase.Y = 0;
 
-	NVSDK_NGX_Result ResultEvaluate = NGX_VULKAN_EVALUATE_DLSS_EXT(
-		VulkanCommandBuffer,
-		InDLSSState->DLSSFeature->Feature,
-		InDLSSState->DLSSFeature->Parameter,
-		&DlssEvalParams
-	);
+		NVSDK_NGX_Resource_VK InSpecularAlbedoTexture = NGXVulkanResourceFromRHITexture(InArguments.InputSpecularAlbedo);
+		DlssRREvalParams.pInSpecularAlbedo = &InSpecularAlbedoTexture;
+		DlssRREvalParams.InSpecularAlbedoSubrectBase.X = 0;
+		DlssRREvalParams.InSpecularAlbedoSubrectBase.Y = 0;
 
-	checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_Vulkan_EVALUATE_DLSS_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
+		NVSDK_NGX_Resource_VK InNormalTexture = NGXVulkanResourceFromRHITexture(InArguments.InputNormals);
+		DlssRREvalParams.pInNormals = &InNormalTexture;
+		NVSDK_NGX_Resource_VK InRoughnessTexture = NGXVulkanResourceFromRHITexture(InArguments.InputRoughness);
+		DlssRREvalParams.pInRoughness = &InRoughnessTexture;
+
+		NVSDK_NGX_Result ResultEvaluate = NGX_VULKAN_EVALUATE_DLSSD_EXT(
+			VulkanCommandBuffer,
+			InDLSSState->DLSSFeature->Feature,
+			InDLSSState->DLSSFeature->Parameter,
+			&DlssRREvalParams
+		);
+
+		checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_Vulkan_EVALUATE_DLSSD_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
+	}
+	else
+	{
+		NVSDK_NGX_VK_DLSS_Eval_Params DlssEvalParams;
+		FMemory::Memzero(DlssEvalParams);
+		NVSDK_NGX_Resource_VK InOutput = NGXVulkanResourceFromRHITexture(InArguments.OutputColor);
+		DlssEvalParams.Feature.pInOutput = &InOutput;
+		check(InArguments.OutputColor->GetFlags() & (TexCreate_UAV | TexCreate_Presentable));
+		check(InOutput.ReadWrite == true);
+		DlssEvalParams.InOutputSubrectBase.X = InArguments.DestRect.Min.X;
+		DlssEvalParams.InOutputSubrectBase.Y = InArguments.DestRect.Min.Y;
+
+		DlssEvalParams.InRenderSubrectDimensions.Width = InArguments.SrcRect.Width();
+		DlssEvalParams.InRenderSubrectDimensions.Height = InArguments.SrcRect.Height();
+
+		NVSDK_NGX_Resource_VK InColor = NGXVulkanResourceFromRHITexture(InArguments.InputColor);
+		DlssEvalParams.Feature.pInColor = &InColor;
+		DlssEvalParams.InColorSubrectBase.X = InArguments.SrcRect.Min.X;
+		DlssEvalParams.InColorSubrectBase.Y = InArguments.SrcRect.Min.Y;
+
+		NVSDK_NGX_Resource_VK InDepth = NGXVulkanResourceFromRHITexture(InArguments.InputDepth);
+		DlssEvalParams.pInDepth = &InDepth;
+		DlssEvalParams.InDepthSubrectBase.X = InArguments.SrcRect.Min.X;
+		DlssEvalParams.InDepthSubrectBase.Y = InArguments.SrcRect.Min.Y;
+
+		NVSDK_NGX_Resource_VK InMotionVectors = NGXVulkanResourceFromRHITexture(InArguments.InputMotionVectors);
+		DlssEvalParams.pInMotionVectors = &InMotionVectors;
+		// The VelocityCombine pass puts the motion vectors into the top left corner
+		DlssEvalParams.InMVSubrectBase.X = 0;
+		DlssEvalParams.InMVSubrectBase.Y = 0;
+
+		NVSDK_NGX_Resource_VK InExposureTexture = NGXVulkanResourceFromRHITexture(InArguments.InputExposure);
+		DlssEvalParams.pInExposureTexture = InArguments.bUseAutoExposure ? nullptr : &InExposureTexture;
+		DlssEvalParams.InPreExposure = InArguments.PreExposure;
+
+		DlssEvalParams.Feature.InSharpness = InArguments.Sharpness;
+		DlssEvalParams.InJitterOffsetX = InArguments.JitterOffset.X;
+		DlssEvalParams.InJitterOffsetY = InArguments.JitterOffset.Y;
+
+		DlssEvalParams.InMVScaleX = InArguments.MotionVectorScale.X;
+		DlssEvalParams.InMVScaleY = InArguments.MotionVectorScale.Y;
+		DlssEvalParams.InReset = InArguments.bReset;
+
+		DlssEvalParams.InFrameTimeDeltaInMsec = InArguments.DeltaTimeMS;
+
+		NVSDK_NGX_Result ResultEvaluate = NGX_VULKAN_EVALUATE_DLSS_EXT(
+			VulkanCommandBuffer,
+			InDLSSState->DLSSFeature->Feature,
+			InDLSSState->DLSSFeature->Parameter,
+			&DlssEvalParams
+		);
+
+		checkf(NVSDK_NGX_SUCCEED(ResultEvaluate), TEXT("NGX_Vulkan_EVALUATE_DLSS_EXT failed! (%u %s), %s"), ResultEvaluate, GetNGXResultAsString(ResultEvaluate), *InDLSSState->DLSSFeature->Desc.GetDebugDescription());
+	}
 	InDLSSState->DLSSFeature->Tick(FrameCounter);
 
-	if (FVulkanPlatform::RegisterGPUWork() && ImmediateContext.IsImmediate())
-	{
-		ImmediateContext.GetGPUProfiler().RegisterGPUWork(1);
-	}
-
-	
-
-	ImmediateContext.GetPendingComputeState()->Reset();
-	ImmediateContext.GetPendingGfxState()->Reset();
+	VulkanRHI->RHIRegisterWork(1);
+	VulkanRHI->RHIFinishExternalComputeWork(VulkanCommandBuffer);
 }
 
 

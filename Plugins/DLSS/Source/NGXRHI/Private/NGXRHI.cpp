@@ -1,27 +1,19 @@
 /*
-* Copyright (c) 2020 - 2021 NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
+* NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+* property and proprietary rights in and to this material, related
+* documentation and any modifications thereto. Any use, reproduction,
+* disclosure or distribution of this material and related documentation
+* without an express license agreement from NVIDIA CORPORATION or
+* its affiliates is strictly prohibited.
 */
 
 #include "NGXRHI.h"
 
 #include "Misc/Paths.h"
 #include "GenericPlatform/GenericPlatformFile.h"
+#include "Interfaces/IPluginManager.h"
 
 #include "nvsdk_ngx.h"
 #include "nvsdk_ngx_params.h"
@@ -55,7 +47,6 @@ static TAutoConsoleVariable<int32> CVarNGXEnableOtherLoggingSinks(
 	TEXT("0: off (default)\n")
 	TEXT("1: on \n"),
 	ECVF_ReadOnly);
-
 
 static TAutoConsoleVariable<int32> CVarNGXFramesUntilFeatureDestruction(
 	TEXT("r.NGX.FramesUntilFeatureDestruction"), 3,
@@ -254,77 +245,139 @@ NGXRHI::~NGXRHI()
 
 void NGXRHI::FDLSSQueryFeature::QueryDLSSSupport()
 {
-	int32 bNeedsUpdatedDriver = 0;
-	int32 MinDriverVersionMajor = 0;
-	int32 MinDriverVersionMinor = 0;
+	int32 bNeedsUpdatedDriverSR = 1;
+	int32 MinDriverVersionMajorSR = 0;
+	int32 MinDriverVersionMinorSR = 0;
+
+	int32 bNeedsUpdatedDriverDenoise = 1;
+	int32 MinDriverVersionMajorDenoise = 0;
+	int32 MinDriverVersionMinorDenoise = 0;
 
 	// Centralize this here instead during NGXRHI init. This should not happen but if we don't have a a valid CapabilityParameters, then we also don't have DLSS.
 	if (!CapabilityParameters)
 	{
 		UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS cannot be loaded possibly due to issues initializing NGX."));
-		DLSSInitResult = NVSDK_NGX_Result_Fail;
-		bIsAvailable = false;
+		NGXInitResult = NVSDK_NGX_Result_Fail;
+		bIsDlssSRAvailable = false;
+		bIsDlssRRAvailable = false;
 		return;
 	}
 
 	check(CapabilityParameters);
 
-	NVSDK_NGX_Result ResultUpdatedDriver = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver, &bNeedsUpdatedDriver);
-	NVSDK_NGX_Result ResultMinDriverVersionMajor = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor, &MinDriverVersionMajor);
-	NVSDK_NGX_Result ResultMinDriverVersionMinor = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor, &MinDriverVersionMinor);
+	NVSDK_NGX_Result ResultUpdatedDriver = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver, &bNeedsUpdatedDriverSR);
+	NVSDK_NGX_Result ResultMinDriverVersionMajor = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor, &MinDriverVersionMajorSR);
+	NVSDK_NGX_Result ResultMinDriverVersionMinor = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor, &MinDriverVersionMinorSR);
 
-	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver -> (%u %s), bNeedsUpdatedDriver = %d"), ResultUpdatedDriver, GetNGXResultAsString(ResultUpdatedDriver), bNeedsUpdatedDriver);
-	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor -> (%u %s), MinDriverVersionMajor = %d"), ResultMinDriverVersionMajor, GetNGXResultAsString(ResultMinDriverVersionMajor), MinDriverVersionMajor);
-	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor -> (%u %s), MinDriverVersionMinor = %d"), ResultMinDriverVersionMinor, GetNGXResultAsString(ResultMinDriverVersionMinor), MinDriverVersionMinor);
+	NVSDK_NGX_Result ResultUpdatedDriverDenoise = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSamplingDenoising_NeedsUpdatedDriver, &bNeedsUpdatedDriverDenoise);
+	NVSDK_NGX_Result ResultMinDriverVersionMajorDenoise = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMajor, &MinDriverVersionMajorDenoise);
+	NVSDK_NGX_Result ResultMinDriverVersionMinorDenoise = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMinor, &MinDriverVersionMinorDenoise);
+
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_NeedsUpdatedDriver -> (%u %s), bNeedsUpdatedDriver = %d"), ResultUpdatedDriver, GetNGXResultAsString(ResultUpdatedDriver), bNeedsUpdatedDriverSR);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMajor -> (%u %s), MinDriverVersionMajor = %d"), ResultMinDriverVersionMajor, GetNGXResultAsString(ResultMinDriverVersionMajor), MinDriverVersionMajorSR);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_MinDriverVersionMinor -> (%u %s), MinDriverVersionMinor = %d"), ResultMinDriverVersionMinor, GetNGXResultAsString(ResultMinDriverVersionMinor), MinDriverVersionMinorSR);
+
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSamplingDenoising_NeedsUpdatedDriver -> (%u %s), bNeedsUpdatedDriver = %d"), ResultUpdatedDriverDenoise, GetNGXResultAsString(ResultUpdatedDriverDenoise), bNeedsUpdatedDriverDenoise);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMajor -> (%u %s), MinDriverVersionMajor = %d"), ResultMinDriverVersionMajorDenoise, GetNGXResultAsString(ResultMinDriverVersionMajorDenoise), MinDriverVersionMajorDenoise);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSamplingDenoising_MinDriverVersionMinor -> (%u %s), MinDriverVersionMinor = %d"), ResultMinDriverVersionMinorDenoise, GetNGXResultAsString(ResultMinDriverVersionMinorDenoise), MinDriverVersionMinorDenoise);
 
 	if (NVSDK_NGX_SUCCEED(ResultUpdatedDriver))
 	{
-		DriverRequirements.DriverUpdateRequired = DriverRequirements.DriverUpdateRequired || bNeedsUpdatedDriver != 0;
+		NGXDLSSSRDriverRequirements.DriverUpdateRequired = bNeedsUpdatedDriverSR != 0;
 		
 		// ignore 0.0 and fall back to the what's baked into FNGXDriverRequirements;
-		if (NVSDK_NGX_SUCCEED(ResultMinDriverVersionMajor) && NVSDK_NGX_SUCCEED(ResultMinDriverVersionMinor) && MinDriverVersionMajor != 0)
+		if (NVSDK_NGX_SUCCEED(ResultMinDriverVersionMajor) && NVSDK_NGX_SUCCEED(ResultMinDriverVersionMinor) && MinDriverVersionMajorSR != 0)
 		{
-			DriverRequirements.MinDriverVersionMajor = MinDriverVersionMajor;
-			DriverRequirements.MinDriverVersionMinor = MinDriverVersionMinor;
+			NGXDLSSSRDriverRequirements.MinDriverVersionMajor = MinDriverVersionMajorSR;
+			NGXDLSSSRDriverRequirements.MinDriverVersionMinor = MinDriverVersionMinorSR;
 		}
 
-		if (bNeedsUpdatedDriver)
+		if (bNeedsUpdatedDriverSR)
 		{
-			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS cannot be loaded due to an outdated driver. Minimum Driver Version required : %u.%u"), MinDriverVersionMajor, MinDriverVersionMinor);
+			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS cannot be loaded due to an outdated driver. Minimum Driver Version required : %u.%u"), MinDriverVersionMajorSR, MinDriverVersionMinorSR);
 		}
 		else
 		{
-			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS is supported by the currently installed driver. Minimum driver version was reported as: %u.%u"), MinDriverVersionMajor, MinDriverVersionMinor);
+			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS is supported by the currently installed driver. Minimum driver version was reported as: %u.%u"), MinDriverVersionMajorSR, MinDriverVersionMinorSR);
 		}
 	}
 	else
 	{
 		UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS Minimum driver version was not reported"));
 	}
-
-	// determine if DLSS is available
-	int DlssAvailable = 0;
-	NVSDK_NGX_Result ResultAvailable = CapabilityParameters->Get(NVSDK_NGX_EParameter_SuperSampling_Available, &DlssAvailable);
-	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_EParameter_SuperSampling_Available -> (%u %s), DlssAvailable = %d"), ResultAvailable, GetNGXResultAsString(ResultAvailable), DlssAvailable);
-
-	if (NVSDK_NGX_SUCCEED(ResultAvailable) && DlssAvailable)
+	// make up a default answer for DLSS-RR in case NGX doesn't provide one
+	NGXDLSSRRDriverRequirements.DriverUpdateRequired = true;
+	NGXDLSSRRDriverRequirements.MinDriverVersionMajor = 537;
+	NGXDLSSRRDriverRequirements.MinDriverVersionMinor = 2;
+	if (NVSDK_NGX_SUCCEED(ResultUpdatedDriverDenoise))
 	{
-		bIsAvailable = true;
+		NGXDLSSRRDriverRequirements.DriverUpdateRequired = bNeedsUpdatedDriverDenoise != 0;
 
-		// store for the higher level code interpret
-		DLSSInitResult = ResultAvailable;
+		// ignore 0.0 and fall back to the what's baked into FNGXDriverRequirements;
+		if (NVSDK_NGX_SUCCEED(ResultMinDriverVersionMajorDenoise) && NVSDK_NGX_SUCCEED(ResultMinDriverVersionMinorDenoise) && MinDriverVersionMajorDenoise != 0)
+		{
+			NGXDLSSRRDriverRequirements.MinDriverVersionMajor = MinDriverVersionMajorDenoise;
+			NGXDLSSRRDriverRequirements.MinDriverVersionMinor = MinDriverVersionMinorDenoise;
+		}
+
+		if (bNeedsUpdatedDriverDenoise)
+		{
+			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS-RR cannot be loaded due to an outdated driver. Minimum Driver Version required : %u.%u"), MinDriverVersionMajorDenoise, MinDriverVersionMinorDenoise);
+		}
+		else
+		{
+			UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS-RR is supported by the currently installed driver. Minimum driver version was reported as: %u.%u"), MinDriverVersionMajorDenoise, MinDriverVersionMinorDenoise);
+		}
 	}
-	
-	// DLSS_TODO verify this
-	if(!DlssAvailable)
+	else
+	{
+		UE_LOG(LogDLSSNGXRHI, Log, TEXT("NVIDIA NGX DLSS-RR Minimum driver version was not reported, driver likely does not support DLSS-RR"));
+	}
+
+	// determine if DLSS-SR is available
+	int DlssSRAvailable = 0;
+	NVSDK_NGX_Result ResultAvailable = CapabilityParameters->Get(NVSDK_NGX_EParameter_SuperSampling_Available, &DlssSRAvailable);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_EParameter_SuperSampling_Available -> (%u %s), DlssAvailable = %d"), ResultAvailable, GetNGXResultAsString(ResultAvailable), DlssSRAvailable);
+	if (NVSDK_NGX_SUCCEED(ResultAvailable) && DlssSRAvailable)
+	{
+		bIsDlssSRAvailable = true;
+
+		// store for the higher level code to interpret
+		NGXDLSSSRInitResult = ResultAvailable;
+	}
+
+	// determine if DLSS-RR is available
+	int DlssRRAvailable = 0;
+	ResultAvailable = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSamplingDenoising_Available, &DlssRRAvailable);
+	UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSamplingDenoising_Available -> (%u %s), DlssRRAvailable = %d"), ResultAvailable, GetNGXResultAsString(ResultAvailable), DlssRRAvailable);
+	if (NVSDK_NGX_SUCCEED(ResultAvailable) && DlssRRAvailable)
+	{
+		// DLSS-RR requires DLSS-SR
+		bIsDlssRRAvailable = bIsDlssSRAvailable;
+
+		// store for the higher level code to interpret
+		NGXDLSSRRInitResult = ResultAvailable;
+	}
+
+
+	if (!bIsDlssSRAvailable)
 	{
 		// and try to find out more details on why it might have failed
 		NVSDK_NGX_Result DlssFeatureInitResult = NVSDK_NGX_Result_Fail;
 		NVSDK_NGX_Result ResultDlssFeatureInitResult = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult, (int*)&DlssFeatureInitResult);
 		UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult -> (%u %s), NVSDK_NGX_Parameter_SuperSampling_FeatureInitResult = (%u %s)"), ResultDlssFeatureInitResult, GetNGXResultAsString(ResultDlssFeatureInitResult), DlssFeatureInitResult, GetNGXResultAsString(DlssFeatureInitResult));
 
-		// store for the higher level code interpret
-		DLSSInitResult = NVSDK_NGX_SUCCEED(ResultDlssFeatureInitResult) ? DlssFeatureInitResult : NVSDK_NGX_Result_Fail;
+		// store for the higher level code to interpret
+		NGXDLSSSRInitResult = NVSDK_NGX_SUCCEED(ResultDlssFeatureInitResult) ? DlssFeatureInitResult : NVSDK_NGX_Result_Fail;
+	}
+	if (!bIsDlssRRAvailable)
+	{
+		NVSDK_NGX_Result DlssRRFeatureInitResult = NVSDK_NGX_Result_Fail;
+		NVSDK_NGX_Result ResultDlssRRFeatureInitResult = CapabilityParameters->Get(NVSDK_NGX_Parameter_SuperSamplingDenoising_FeatureInitResult, (int*)&DlssRRFeatureInitResult);
+		UE_LOG(LogDLSSNGXRHI, Log, TEXT("Get NVSDK_NGX_Parameter_SuperSamplingDenoising_FeatureInitResult -> (%u %s), NVSDK_NGX_Parameter_SuperSamplingDenoising_FeatureInitResult = (%u %s)"), ResultDlssRRFeatureInitResult, GetNGXResultAsString(ResultDlssRRFeatureInitResult), DlssRRFeatureInitResult, GetNGXResultAsString(DlssRRFeatureInitResult));
+
+		// store for the higher level code to interpret
+		NGXDLSSRRInitResult = NVSDK_NGX_SUCCEED(ResultDlssRRFeatureInitResult) ? DlssRRFeatureInitResult : NVSDK_NGX_Result_Fail;
 	}
 }
 
@@ -369,7 +422,7 @@ FDLSSOptimalSettings NGXRHI::FDLSSQueryFeature::GetDLSSOptimalSettings(const FDL
 	return OptimalSettings;
 }
 
- FString NGXRHI::GetNGXLogDirectory()
+FString NGXRHI::GetNGXLogDirectory()
 {
 	// encode the time and instance id to handle cases like PIE standalone game where multiple processe are running at the same time.
 	FString AbsoluteProjectLogDir = FPaths::ConvertRelativePathToFull(FPaths::ProjectLogDir());
@@ -377,12 +430,20 @@ FDLSSOptimalSettings NGXRHI::FDLSSQueryFeature::GetDLSSOptimalSettings(const FDL
 	return NGXLogDir;
 }
 
+bool NGXRHI::IsSafeToShutdownNGX() const
+{
+	// Streamline plugin also uses NGX so it's not safe for us to call NGX shutdown functions from this plugin when Streamline is enabled
+	TSharedPtr<IPlugin> StreamlinePlugin = IPluginManager::Get().FindPlugin(TEXT("Streamline"));
+	return !StreamlinePlugin.IsValid() || !StreamlinePlugin->IsEnabled();
+}
+
 uint32 FRHIDLSSArguments::GetNGXCommonDLSSFeatureFlags() const
 {
 	check(!IsRunningRHIInSeparateThread() || IsInRHIThread());
 	uint32 DLSSFeatureFlags = NVSDK_NGX_DLSS_Feature_Flags_None;
 	DLSSFeatureFlags |= NVSDK_NGX_DLSS_Feature_Flags_IsHDR;
-	DLSSFeatureFlags |= bool(ERHIZBuffer::IsInverted) ? NVSDK_NGX_DLSS_Feature_Flags_DepthInverted : 0;
+	if (DenoiserMode == ENGXDLSSDenoiserMode::Off)
+		DLSSFeatureFlags |= bool(ERHIZBuffer::IsInverted) ? NVSDK_NGX_DLSS_Feature_Flags_DepthInverted : 0;
 	DLSSFeatureFlags |= !bHighResolutionMotionVectors ? NVSDK_NGX_DLSS_Feature_Flags_MVLowRes : 0;
 	DLSSFeatureFlags |= Sharpness != 0.0f ? NVSDK_NGX_DLSS_Feature_Flags_DoSharpening : 0;
 	DLSSFeatureFlags |= bUseAutoExposure ? NVSDK_NGX_DLSS_Feature_Flags_AutoExposure : 0;
@@ -399,34 +460,30 @@ NVSDK_NGX_DLSS_Create_Params FRHIDLSSArguments::GetNGXDLSSCreateParams() const
 	Result.Feature.InTargetWidth = DestRect.Width();
 	Result.Feature.InTargetHeight = DestRect.Height();
 	Result.Feature.InPerfQualityValue = static_cast<NVSDK_NGX_PerfQuality_Value>(PerfQuality);
-	check((Result.Feature.InPerfQualityValue >= NVSDK_NGX_PerfQuality_Value_MaxPerf) && (Result.Feature.InPerfQualityValue <= NVSDK_NGX_PerfQuality_Value_UltraQuality));
+	check((Result.Feature.InPerfQualityValue >= NVSDK_NGX_PerfQuality_Value_MaxPerf) && (Result.Feature.InPerfQualityValue <= NVSDK_NGX_PerfQuality_Value_DLAA));
 
 	Result.InFeatureCreateFlags = GetNGXCommonDLSSFeatureFlags();
 	Result.InEnableOutputSubrects = OutputColor->GetTexture2D()->GetSizeXY() != DestRect.Size();
 	return Result;
 }
 
-
-static bool CrossedDLAAPseudoModeThreshold(float NewUpscaleRatio, float PreviousUpscaleRatio)
+NVSDK_NGX_DLSSD_Create_Params FRHIDLSSArguments::GetNGXDLSSRRCreateParams() const
 {
-	// This DLAA threshold is an undocumented value from the NGX DLSS SDK implementation
-	// If the upscale ratio is greater than or equal to this threshold, the model weights for DLAA will be selected in
-	// place of the weights for the requested DLSS quality mode. Weights will only change at feature creation time, so
-	// we have to detect if we've crossed this threshold. Otherwise changing the screen percentage at runtime from
-	// DLAA range (99-100) to non-DLAA range (<99) or vice-versa could give the wrong weights.
-	const float DLAA_PSEUDO_MODE_THRESHOLD = 0.99f;
-	const float HYSTERESIS = 0.001f;
-	if (NewUpscaleRatio > PreviousUpscaleRatio && NewUpscaleRatio >= (DLAA_PSEUDO_MODE_THRESHOLD + HYSTERESIS))
-	{
-		// DLAA pseudo-mode on
-		return true;
-	}
-	else if (NewUpscaleRatio < PreviousUpscaleRatio && NewUpscaleRatio <= (DLAA_PSEUDO_MODE_THRESHOLD - HYSTERESIS))
-	{
-		// DLAA pseudo-mode off
-		return true;
-	}
-	return false;
+	check(!IsRunningRHIInSeparateThread() || IsInRHIThread());
+	NVSDK_NGX_DLSSD_Create_Params Result;
+	FMemory::Memzero(Result);
+	Result.InWidth = SrcRect.Width();
+	Result.InHeight = SrcRect.Height();
+	Result.InTargetWidth = DestRect.Width();
+	Result.InTargetHeight = DestRect.Height();
+	Result.InPerfQualityValue = static_cast<NVSDK_NGX_PerfQuality_Value>(PerfQuality);
+	check((Result.InPerfQualityValue >= NVSDK_NGX_PerfQuality_Value_MaxPerf) && (Result.InPerfQualityValue <= NVSDK_NGX_PerfQuality_Value_DLAA));
+	Result.InFeatureCreateFlags = GetNGXCommonDLSSFeatureFlags();
+	Result.InEnableOutputSubrects = OutputColor->GetTexture2D()->GetSizeXY() != DestRect.Size();
+	// Note: we clamp here the higher level enum (which has support for experimental) to on/off which is what NGX supports at this point in time
+	Result.InDenoiseMode = NVSDK_NGX_DLSS_Denoise_Mode_DLUnified;
+
+	return Result;
 }
 
 // this is used by the RHIs to see whether they need to recreate the NGX feature
@@ -436,16 +493,10 @@ bool FDLSSState::RequiresFeatureRecreation(const FRHIDLSSArguments& InArguments)
 	float NewUpscaleRatio = static_cast<float>(InArguments.SrcRect.Width()) / static_cast<float>(InArguments.DestRect.Width());
 	if (!DLSSFeature || DLSSFeature->Desc != InArguments.GetFeatureDesc())
 	{
-		PreviousUpscaleRatio = NewUpscaleRatio;
 		return true;
 	}
 
-	if (CrossedDLAAPseudoModeThreshold(NewUpscaleRatio, PreviousUpscaleRatio))
-	{
-		PreviousUpscaleRatio = NewUpscaleRatio;
-		return true;
-	}
-
+	
 	return false;
 }
 
@@ -499,7 +550,8 @@ void NGXRHI::ApplyCommonNGXParameterSettings(NVSDK_NGX_Parameter* InOutParameter
 	NVSDK_NGX_Parameter_SetI(InOutParameter, NVSDK_NGX_Parameter_FreeMemOnReleaseFeature, InArguments.bReleaseMemoryOnDelete ? 1 : 0);
 
 	// model selection
-	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, static_cast<uint32>(InArguments.DLAAPreset));
+	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, static_cast<uint32>(InArguments.DLSSPreset));
+	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_UltraQuality, static_cast<uint32>(InArguments.DLSSPreset));
 	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Quality, static_cast<uint32>(InArguments.DLSSPreset));
 	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Balanced, static_cast<uint32>(InArguments.DLSSPreset));
 	NVSDK_NGX_Parameter_SetUI(InOutParameter, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_Performance, static_cast<uint32>(InArguments.DLSSPreset));
@@ -533,16 +585,11 @@ void NGXRHI::TickPoolElements()
 
 	SET_DWORD_STAT(STAT_DLSSNumFeatures, AllocatedDLSSFeatures.Num());
 	
-
-	// if r.NGX.Enable is 0 then this should be nullptr
-	if(DLSSQueryFeature.CapabilityParameters)
+	if(NGXQueryFeature.CapabilityParameters)
 	{
-		static const auto CVarNGXDLSSEnable = IConsoleManager::Get().FindConsoleVariable(TEXT("r.NGX.Enable"));
-		check(CVarNGXDLSSEnable && CVarNGXDLSSEnable->GetInt() != 0);
-
 		unsigned long long VRAM = 0;
 
-		NVSDK_NGX_Result ResultGetStats = NGX_DLSS_GET_STATS(DLSSQueryFeature.CapabilityParameters, &VRAM);
+		NVSDK_NGX_Result ResultGetStats = NGX_DLSS_GET_STATS(NGXQueryFeature.CapabilityParameters, &VRAM);
 
 		checkf(NVSDK_NGX_SUCCEED(ResultGetStats), TEXT("Failed to retrieve DLSS memory statistics via NGX_DLSS_GET_STATS -> (%u %s)"), ResultGetStats, GetNGXResultAsString(ResultGetStats));
 		if (NVSDK_NGX_SUCCEED(ResultGetStats))

@@ -1,21 +1,12 @@
 /*
-* Copyright (c) 2020 NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
+* NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+* property and proprietary rights in and to this material, related
+* documentation and any modifications thereto. Any use, reproduction,
+* disclosure or distribution of this material and related documentation
+* without an express license agreement from NVIDIA CORPORATION or
+* its affiliates is strictly prohibited.
 */
 #pragma once
 
@@ -53,7 +44,8 @@ UENUM(BlueprintType)
 enum class UDLSSMode : uint8
 {
 	Off              UMETA(DisplayName = "Off"),
-	Auto             UMETA(DisplayName = "Auto"),
+	Auto             UMETA(DisplayName = "Auto", ToolTip = "Not a real quality mode. Use Auto to query best settings for a given resolution with GetDLSSModeInformation"),
+	DLAA             UMETA(DisplayName = "DLAA"),
 	UltraQuality     UMETA(DisplayName = "Ultra Quality"),
 	Quality          UMETA(DisplayName = "Quality"),
 	Balanced         UMETA(DisplayName = "Balanced"),
@@ -68,75 +60,115 @@ class  UDLSSLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 
-	/** Checks whether DLSS/DLAA is supported by the current GPU. Further details can be retrieved via QueryDLSSSupport*/
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is NVIDIA DLSS Supported"))
+	/** Check whether NVIDIA DLSS Super Resolution/DLAA is supported. Further details can be retrieved via 'Query DLSS-SR Support' */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS-SR Supported"))
 	static DLSSBLUEPRINT_API bool IsDLSSSupported();
 
-	/** Checks whether DLSS/DLAA is supported by the current GPU	*/
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Query NVIDIA DLSS Support"))
+	/** Check whether NVIDIA DLSS Ray Reconstruction is supported. Further details can be retrieved via 'Query DLSS-RR Support' */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS-RR Supported"))
+	static DLSSBLUEPRINT_API bool IsDLSSRRSupported();
+
+	/** Check whether NVIDIA DLSS Super Resolution/DLAA is supported */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Query DLSS-SR Support"))
 	static DLSSBLUEPRINT_API UDLSSSupport QueryDLSSSupport();
 
+	/** Check whether NVIDIA DLSS Ray Reconstruction is supported */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Query DLSS-RR Support"))
+	static DLSSBLUEPRINT_API UDLSSSupport QueryDLSSRRSupport();
+
 	/** If QueryDLSSSupport returns "NotSupportedDriverOutOfDate", then MinDriverVersionMajor and MinDriverVersionMinor contains the required driver version.*/
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Minimum DriverVersion"))
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS-SR Minimum DriverVersion"))
 	static DLSSBLUEPRINT_API void GetDLSSMinimumDriverVersion(int32& MinDriverVersionMajor, int32& MinDriverVersionMinor);
 
+	/** If QueryDLSSRRSupport returns "NotSupportedDriverOutOfDate", then MinDriverVersionMajor and MinDriverVersionMinor contains the required driver version.*/
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS-RR Minimum DriverVersion"))
+	static DLSSBLUEPRINT_API void GetDLSSRRMinimumDriverVersion(int32& MinDriverVersionMajor, int32& MinDriverVersionMinor);
+
+	/**
+	 * Enable/disable DLSS Super Resolution/DLAA
+	 * To select a DLSS-SR quality mode, set an appropriate upscale screen percentage with r.ScreenPercentage. Use GetDlssModeInformation to find optimal screen percentage
+	 * To select DLAA, set the upscale screen percentage to 100 (r.ScreenPercentage=100)
+	 */
+	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Enable DLSS-SR"))
+	static DLSSBLUEPRINT_API void EnableDLSS(bool bEnabled);
+
+	/** Check whether DLSS Super Resolution/DLAA is enabled */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS-SR Enabled"))
+	static DLSSBLUEPRINT_API bool IsDLSSEnabled();
+
+	/** (Unsupported in this release) Enable/disable DLSS Ray Reconstruction */
+	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Enable DLSS-RR"))
+	static DLSSBLUEPRINT_API void EnableDLSSRR(bool bEnabled);
+
+	/** Check whether DLSS Ray Reconstruction is enabled */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS-RR Enabled"))
+	static DLSSBLUEPRINT_API bool IsDLSSRREnabled();
+
 	/** Enable/disable DLAA. Note that while DLAA is enabled, DLSS will be automatically disabled */
-	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Enable DLAA"))
+	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Enable DLAA", DeprecatedFunction, DeprecationMessage = "Use 'Enable DLSS-SR' instead"))
 	static DLSSBLUEPRINT_API void EnableDLAA(bool bEnabled);
 
-	/** Checks whether DLAA is enabled */
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLAA Enabled"))
+	/** Check whether DLAA is enabled */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLAA Enabled", DeprecatedFunction, DeprecationMessage = "Use 'Is DLSS-SR Enabled' instead"))
 	static DLSSBLUEPRINT_API bool IsDLAAEnabled();
 
-	/** Checks whether a DLSS mode is supported */
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS Mode Supported"))
+	/** Check whether a DLSS mode is supported */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Is DLSS-SR Mode Supported"))
 	static DLSSBLUEPRINT_API bool IsDLSSModeSupported(UDLSSMode DLSSMode);
 
-	/** Retrieves all supported DLSS modes. Can be used to populate UI */
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get Supported DLSS Modes"))
+	/** Retrieve all supported DLSS modes. Can be used to populate UI */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get Supported DLSS-SR Modes"))
 	static DLSSBLUEPRINT_API TArray<UDLSSMode> GetSupportedDLSSModes();
 
-	/** Provides additional details (such as screen percentage ranges) about a DLSS mode. Screen Resolution is required for Auto mode */
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Mode Information"))
+	/** Provide additional details (such as screen percentage ranges) about a DLSS mode. Screen Resolution is required for Auto mode */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS-SR Mode Information"))
 	static DLSSBLUEPRINT_API void GetDLSSModeInformation(UDLSSMode DLSSMode, FVector2D ScreenResolution, bool& bIsSupported, float& OptimalScreenPercentage, bool& bIsFixedScreenPercentage, float& MinScreenPercentage, float& MaxScreenPercentage, float& OptimalSharpness);
 
 	/** The global screen percentage range that DLSS supports. Excludes DLSS modes with fixed screen percentage. Also see GetDLSSModeInformation*/
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Screenpercentage Range"))
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS-SR Screenpercentage Range"))
 	static DLSSBLUEPRINT_API void GetDLSSScreenPercentageRange(float& MinScreenPercentage, float& MaxScreenPercentage);
 
-	/** Sets the console variables to enable/disable DLSS (r.NGX.DLSS.Enable, r.NGX.DLSS.Quality)*/
-	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Set DLSS Mode"))
-	static DLSSBLUEPRINT_API void SetDLSSMode(UDLSSMode DLSSMode);
+	/** Enable/disable DLSS */
+	UFUNCTION(BlueprintCallable, Category = "DLSS", meta=(WorldContext="WorldContextObject", DisplayName = "Set DLSS Mode", DeprecatedFunction, DeprecationMessage = "Use 'Enable DLSS-SR' instead"))
+	static DLSSBLUEPRINT_API void SetDLSSMode(UObject* WorldContextObject, UDLSSMode DLSSMode);
 
-	/* Reads the console variables to infer the current DLSS mode (r.NGX.DLSS.Enable, r.NGX.DLSS.Quality, r.TemporalAA.Upscaler)*/
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Mode"))
+	/* Read the current DLSS mode */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Mode", DeprecatedFunction, DeprecationMessage = "Use 'Is DLSS-SR Enabled' instead"))
 	static DLSSBLUEPRINT_API UDLSSMode GetDLSSMode();
 
-	/* Sets the console variables to enable additional DLSS sharpening. Set to 0 to disable (r.NGX.DLSS.Sharpness) */
-	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Set DLSS Sharpness"))
+	/* Set the console variables to enable additional DLSS sharpening. Set to 0 to disable (r.NGX.DLSS.Sharpness) */
+	UFUNCTION(BlueprintCallable, Category = "DLSS", meta = (DisplayName = "Set DLSS Sharpness", DeprecatedFunction, DeprecationMessage = "Use NIS sharpening instead"))
 	static DLSSBLUEPRINT_API void SetDLSSSharpness(float Sharpness);
 	
-	/*Reads the console variables to infer the current DLSS sharpness (r.NGX.DLSS.Sharpness) */
-	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Sharpness"))
+	/* Read the console variables to infer the current DLSS sharpness (r.NGX.DLSS.Sharpness) */
+	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get DLSS Sharpness", DeprecatedFunction, DeprecationMessage = "Use NIS sharpening instead"))
 	static DLSSBLUEPRINT_API float GetDLSSSharpness();
 
 	/* Find a reasonable default DLSS mode based on current hardware */
 	UFUNCTION(BlueprintPure, Category = "DLSS", meta = (DisplayName = "Get Default DLSS Mode"))
 	static DLSSBLUEPRINT_API UDLSSMode GetDefaultDLSSMode();
 
-	/* Allows conversion from BlueprintType enums. */
-	static DLSSBLUEPRINT_API int32 ToDLSSQualityCVarValue(UDLSSMode InDLSSQualityMode);
-
 private:
-	static UDLSSSupport DLSSSupport;
+	static UDLSSSupport DLSSSRSupport;
+	static UDLSSSupport DLSSRRSupport;
 
 #if WITH_DLSS
-	static int32 MinDLSSDriverVersionMinor;
-	static int32 MinDLSSDriverVersionMajor;
+	static int32 MinDLSSSRDriverVersionMinor;
+	static int32 MinDLSSSRDriverVersionMajor;
+	static int32 MinDLSSRRDriverVersionMinor;
+	static int32 MinDLSSRRDriverVersionMajor;
 	static FDLSSUpscaler* DLSSUpscaler;
 	static bool bDLSSLibraryInitialized;
 
+	static UDLSSMode CurrentDLSSModeDeprecated;
+	static bool bDLAAEnabledDeprecated;
+
 	static bool TryInitDLSSLibrary();
+
+	static int32 PreviousShadowDenoiser;
+	static int32 PreviousLumenSSR;
+	static int32 PreviousLumenTemporal;
+	static bool bDenoisingRequested;
 
 #if !UE_BUILD_SHIPPING
 	struct FDLSSErrorState

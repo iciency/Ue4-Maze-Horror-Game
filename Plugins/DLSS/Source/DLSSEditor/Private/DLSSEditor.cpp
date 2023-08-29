@@ -1,27 +1,16 @@
 /*
-* Copyright (c) 2020 NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
+* NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+* property and proprietary rights in and to this material, related
+* documentation and any modifications thereto. Any use, reproduction,
+* disclosure or distribution of this material and related documentation
+* without an express license agreement from NVIDIA CORPORATION or
+* its affiliates is strictly prohibited.
 */
-
 #include "DLSSEditor.h"
 
 #include "DLSSUpscaler.h"
-#include "DLSSUpscalerEditor.h"
 #include "DLSS.h"
 #include "DLSSSettings.h"
 #include "NGXRHI.h"
@@ -47,17 +36,9 @@ void FDLSSEditorModule::StartupModule()
 	// verify that the other DLSS modules are correctly hooked up
 	{
 		IDLSSModuleInterface* DLSSModule = &FModuleManager::LoadModuleChecked<IDLSSModuleInterface>(TEXT("DLSS"));
-		UE_LOG(LogDLSSEditor, Log, TEXT("DLSS module %p, QueryDLSSSupport = %u DLSSUpscaler = %p"), DLSSModule, DLSSModule->QueryDLSSSupport(), DLSSModule->GetDLSSUpscaler());
+		UE_LOG(LogDLSSEditor, Log, TEXT("DLSS module %p, QueryDLSSSupport = %u DLSSUpscaler = %p"), DLSSModule, DLSSModule->QueryDLSSSRSupport(), DLSSModule->GetDLSSUpscaler());
 		
-		bIsDLSSAvailable = DLSSModule->QueryDLSSSupport() == EDLSSSupport::Supported;
-		if (bIsDLSSAvailable)
-		{
-			checkf(GCustomStaticScreenPercentage == DLSSModule->GetDLSSUpscaler(),TEXT("GCustomStaticScreenPercentage is not set to the DLSS upscaler. Please check that only one upscaling plugin is active."));
-
-			DLSSUpscalerEditor = MakeShared<FDLSSUpscalerEditor>(DLSSModule->GetDLSSUpscaler());
-			checkf(GCustomEditorStaticScreenPercentage == nullptr, TEXT("GCustomEditorStaticScreenPercentage is already in use. Please check that only one upscaling active is active."));
-			GCustomEditorStaticScreenPercentage = DLSSUpscalerEditor.Get();
-		}
+		bIsDLSSAvailable = DLSSModule->QueryDLSSSRSupport() == EDLSSSupport::Supported;
 	}
 
 	// register settings
@@ -104,18 +85,7 @@ void FDLSSEditorModule::ShutdownModule()
 {
 	UE_LOG(LogDLSSEditor, Log, TEXT("%s Enter"), ANSI_TO_TCHAR(__FUNCTION__));
 	
-	if (bIsDLSSAvailable)
-	{
-		GCustomEditorStaticScreenPercentage = nullptr;
-		DLSSUpscalerEditor = nullptr;
-	}
-
 	UE_LOG(LogDLSSEditor, Log, TEXT("%s Leave"), ANSI_TO_TCHAR(__FUNCTION__));
-}
-
-FDLSSUpscalerEditor* FDLSSEditorModule::GetDLSSUpscalerEditor() const
-{
-	return DLSSUpscalerEditor.Get();
 }
 
 #undef LOCTEXT_NAMESPACE

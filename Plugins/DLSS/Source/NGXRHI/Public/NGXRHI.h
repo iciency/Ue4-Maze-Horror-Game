@@ -1,21 +1,12 @@
 /*
-* Copyright (c) 2020 NVIDIA CORPORATION.  All rights reserved.
+* Copyright (c) 2020 - 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 *
-* NVIDIA Corporation and its licensors retain all intellectual property and proprietary
-* rights in and to this software, related documentation and any modifications thereto.
-* Any use, reproduction, disclosure or distribution of this software and related
-* documentation without an express license agreement from NVIDIA Corporation is strictly
-* prohibited.
-*
-* TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THIS SOFTWARE IS PROVIDED *AS IS*
-* AND NVIDIA AND ITS SUPPLIERS DISCLAIM ALL WARRANTIES, EITHER EXPRESS OR IMPLIED,
-* INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-* PARTICULAR PURPOSE.  IN NO EVENT SHALL NVIDIA OR ITS SUPPLIERS BE LIABLE FOR ANY
-* SPECIAL, INCIDENTAL, INDIRECT, OR CONSEQUENTIAL DAMAGES WHATSOEVER (INCLUDING, WITHOUT
-* LIMITATION, DAMAGES FOR LOSS OF BUSINESS PROFITS, BUSINESS INTERRUPTION, LOSS OF
-* BUSINESS INFORMATION, OR ANY OTHER PECUNIARY LOSS) ARISING OUT OF THE USE OF OR
-* INABILITY TO USE THIS SOFTWARE, EVEN IF NVIDIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-* SUCH DAMAGES.
+* NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+* property and proprietary rights in and to this material, related
+* documentation and any modifications thereto. Any use, reproduction,
+* disclosure or distribution of this material and related documentation
+* without an express license agreement from NVIDIA CORPORATION or
+* its affiliates is strictly prohibited.
 */
 
 #pragma once
@@ -24,21 +15,27 @@
 
 #include "CoreMinimal.h"
 #include "RendererInterface.h"
-#include "Runtime/Launch/Resources/Version.h"
 
 #include "nvsdk_ngx_params.h"
+#include "nvsdk_ngx_helpers_dlssd.h"
 
 #define NVSDK_NGX_VERSION_API_MACRO_BASE_LINE (0x0000013)
 #define NVSDK_NGX_VERSION_API_MACRO_WITH_LOGGING (0x0000014)
 
 struct FDLSSState;
 
+enum class ENGXDLSSDenoiserMode
+{
+	Off = NVSDK_NGX_DLSS_Denoise_Mode_Off,
+	DLSSRR = NVSDK_NGX_DLSS_Denoise_Mode_DLUnified,
+	MaxValue = DLSSRR
+};
+
 struct FDLSSFeatureDesc
 {
 	bool operator != (const FDLSSFeatureDesc& Other) const
 	{
 		return DestRect.Size() != Other.DestRect.Size()
-			|| DLAAPreset != Other.DLAAPreset
 			|| DLSSPreset != Other.DLSSPreset
 			|| PerfQuality != Other.PerfQuality
 			|| bHighResolutionMotionVectors != Other.bHighResolutionMotionVectors
@@ -46,7 +43,8 @@ struct FDLSSFeatureDesc
 			|| bUseAutoExposure != Other.bUseAutoExposure
 			|| bReleaseMemoryOnDelete != Other.bReleaseMemoryOnDelete
 			|| GPUNode != Other.GPUNode
-			|| GPUVisibility != Other.GPUVisibility;
+			|| GPUVisibility != Other.GPUVisibility
+			|| DenoiserMode != Other.DenoiserMode;
 	}
 
 	bool operator == (const FDLSSFeatureDesc& Other) const
@@ -56,7 +54,6 @@ struct FDLSSFeatureDesc
 
 	FIntRect SrcRect = FIntRect(FIntPoint::NoneValue, FIntPoint::NoneValue);
 	FIntRect DestRect = FIntRect(FIntPoint::NoneValue, FIntPoint::NoneValue);
-	int32 DLAAPreset = -1;
 	int32 DLSSPreset = -1;
 	int32 PerfQuality = -1;
 	bool bHighResolutionMotionVectors = false;
@@ -65,6 +62,7 @@ struct FDLSSFeatureDesc
 	bool bReleaseMemoryOnDelete = false;
 	uint32 GPUNode = 0;
 	uint32 GPUVisibility = 0;
+	ENGXDLSSDenoiserMode DenoiserMode = ENGXDLSSDenoiserMode::Off;
 	FString GetDebugDescription() const
 	{
 		auto NGXDLSSPresetString = [] (int NGXPerfQuality)
@@ -78,6 +76,7 @@ struct FDLSSFeatureDesc
 				case NVSDK_NGX_DLSS_Hint_Render_Preset_D:return TEXT("Preset D");
 				case NVSDK_NGX_DLSS_Hint_Render_Preset_E:return TEXT("Preset E");
 				case NVSDK_NGX_DLSS_Hint_Render_Preset_F:return TEXT("Preset F");
+				case NVSDK_NGX_DLSS_Hint_Render_Preset_G:return TEXT("Preset G");
 				default:return TEXT("Invalid NVSDK_NGX_DLSS_Hint_Render_Preset");
 			}
 		};
@@ -90,26 +89,34 @@ struct FDLSSFeatureDesc
 				case NVSDK_NGX_PerfQuality_Value_MaxQuality:return TEXT("MaxQuality");
 				case NVSDK_NGX_PerfQuality_Value_UltraPerformance:return TEXT("UltraPerformance");
 				case NVSDK_NGX_PerfQuality_Value_UltraQuality:return TEXT("UltraQuality");
+				case NVSDK_NGX_PerfQuality_Value_DLAA:return TEXT("DLAA");
 				default:return TEXT("Invalid NVSDK_NGX_PerfQuality_Value");
 			}
 		};
-		return FString::Printf(TEXT("SrcRect=[%dx%d->%dx%d], DestRect=[%dx%d->%dx%d], ScaleX=%f, ScaleY=%f, NGXDLAAPreset=%s(%d), NGXDLSSPreset=%s(%d), NGXPerfQuality=%s(%d), bHighResolutionMotionVectors=%d, bNonZeroSharpness=%d, bUseAutoExposure=%d, bReleaseMemoryOnDelete=%d, GPUNode=%u, GPUVisibility=0x%x"),
+		auto NGXDenoiserModeString = [](ENGXDLSSDenoiserMode NGXDenoiserMode)
+		{
+			switch (NGXDenoiserMode)
+			{
+			case ENGXDLSSDenoiserMode::Off: return TEXT("Off");
+			case ENGXDLSSDenoiserMode::DLSSRR: return TEXT("DLSSRR");
+			default:return TEXT("Invalid ENGXDLSSDenoiserMode");
+			}
+		};
+
+		return FString::Printf(TEXT("SrcRect=[%dx%d->%dx%d], DestRect=[%dx%d->%dx%d], ScaleX=%f, ScaleY=%f, NGXDLSSPreset=%s(%d), NGXPerfQuality=%s(%d), bHighResolutionMotionVectors=%d, bNonZeroSharpness=%d, bUseAutoExposure=%d, bReleaseMemoryOnDelete=%d, GPUNode=%u, GPUVisibility=0x%x, DenoiseMode=%s"),
 			SrcRect.Min.X, SrcRect.Min.Y, SrcRect.Max.X, SrcRect.Max.Y,
 			DestRect.Min.X, DestRect.Min.Y, DestRect.Max.X, DestRect.Max.Y,
 			float(SrcRect.Width()) / float(DestRect.Width()),
 			float(SrcRect.Height()) / float(DestRect.Height()),
-			NGXDLSSPresetString(DLAAPreset),
-			DLAAPreset,
-			NGXDLSSPresetString(DLSSPreset),
-			DLSSPreset,
-			NGXPerfQualityString(PerfQuality),
-			PerfQuality,
+			NGXDLSSPresetString(DLSSPreset), DLSSPreset,
+			NGXPerfQualityString(PerfQuality), PerfQuality,
 			bHighResolutionMotionVectors,
 			bNonZeroSharpness,
 			bUseAutoExposure,
 			bReleaseMemoryOnDelete,
 			GPUNode,
-			GPUVisibility);
+			GPUVisibility,
+			NGXDenoiserModeString(DenoiserMode));
 
 	}
 };
@@ -120,27 +127,30 @@ struct NGXRHI_API FRHIDLSSArguments
 	FRHITexture* InputDepth = nullptr;
 	FRHITexture* InputMotionVectors = nullptr;
 	FRHITexture* InputExposure = nullptr;
+	
+	FRHITexture* InputDiffuseAlbedo = nullptr;
+	FRHITexture* InputSpecularAlbedo = nullptr;
+
+	FRHITexture* InputNormals = nullptr;
+	FRHITexture* InputRoughness = nullptr;
 
 	FRHITexture* OutputColor = nullptr;
 
 	FIntRect SrcRect = FIntRect(FIntPoint::ZeroValue, FIntPoint::ZeroValue);
 	FIntRect DestRect = FIntRect(FIntPoint::ZeroValue, FIntPoint::ZeroValue);
-#if ENGINE_MAJOR_VERSION < 5
-	FVector2D JitterOffset= FVector2D::ZeroVector;
-	FVector2D MotionVectorScale{ 1.0f,1.0f };
-#else
 	FVector2f JitterOffset = FVector2f::ZeroVector;
 	FVector2f MotionVectorScale = FVector2f::UnitVector;
-#endif
+
+	FMatrix InvViewProjectionMatrix;
+	FMatrix ClipToPrevClipMatrix;
 	bool bHighResolutionMotionVectors = false;
 
 	float Sharpness = 0.0f;
 	bool bReset = false;
 
-	int32 DLAAPreset = NVSDK_NGX_DLSS_Hint_Render_Preset::NVSDK_NGX_DLSS_Hint_Render_Preset_Default;
 	int32 DLSSPreset = NVSDK_NGX_DLSS_Hint_Render_Preset::NVSDK_NGX_DLSS_Hint_Render_Preset_Default;
 	int32 PerfQuality = 0;
-	float DeltaTime = 0.0f;
+	float DeltaTimeMS = 0.0f;
 
 	float PreExposure = 1.0f;
 	bool bUseAutoExposure = false;
@@ -149,15 +159,24 @@ struct NGXRHI_API FRHIDLSSArguments
 	bool bReleaseMemoryOnDelete = false;
 	uint32 GPUNode = 0;
 	uint32 GPUVisibility = 0;
+
+	ENGXDLSSDenoiserMode DenoiserMode = ENGXDLSSDenoiserMode::Off;
+
 	void Validate() const;
 	
 	inline FDLSSFeatureDesc GetFeatureDesc() const
 	{
-		return FDLSSFeatureDesc{ SrcRect, DestRect, DLAAPreset, DLSSPreset, PerfQuality, bHighResolutionMotionVectors, Sharpness != 0.0f, bUseAutoExposure, bReleaseMemoryOnDelete, GPUNode, GPUVisibility};
+		return FDLSSFeatureDesc 
+		{ 
+			SrcRect, DestRect, DLSSPreset, PerfQuality,
+			bHighResolutionMotionVectors, Sharpness != 0.0f, bUseAutoExposure, 
+			bReleaseMemoryOnDelete, GPUNode, GPUVisibility, DenoiserMode
+		};
 	}
 
 	uint32 GetNGXCommonDLSSFeatureFlags() const;
 	NVSDK_NGX_DLSS_Create_Params  GetNGXDLSSCreateParams() const;
+	NVSDK_NGX_DLSSD_Create_Params GetNGXDLSSRRCreateParams() const;
 };
 
 struct FNGXDriverRequirements
@@ -177,6 +196,7 @@ public:
 	NVSDK_NGX_Handle* Feature = nullptr;
 	NVSDK_NGX_Parameter* Parameter = nullptr;
 	uint32 LastUsedFrame = 0;
+	bool bHasDLSSRR = false;
 
 	void Tick(uint32 InFrameNumber)
 	{
@@ -214,7 +234,6 @@ struct NGXRHI_API FDLSSState
 
 	// this is stored via pointer to allow the NGXRHIs use the API specific functions to create & release
 	TSharedPtr<NGXDLSSFeature> DLSSFeature;
-	float PreviousUpscaleRatio;
 };
 
 using FDLSSStateRef = TSharedPtr<FDLSSState, ESPMode::ThreadSafe>;
@@ -312,10 +331,15 @@ class NGXRHI_API NGXRHI
 		// the lifetime of this is managed directly by the encompassing derived RHI
 		NVSDK_NGX_Parameter* CapabilityParameters = nullptr;
 
-		bool bIsAvailable = false;
-		FNGXDriverRequirements DriverRequirements;
+		bool bIsDlssSRAvailable = false;
+		bool bIsDlssRRAvailable = false;
+		FNGXDriverRequirements NGXDriverRequirements;
+		FNGXDriverRequirements NGXDLSSSRDriverRequirements;
+		FNGXDriverRequirements NGXDLSSRRDriverRequirements;
 
-		NVSDK_NGX_Result DLSSInitResult = NVSDK_NGX_Result_Fail;
+		NVSDK_NGX_Result NGXInitResult = NVSDK_NGX_Result_Fail;
+		NVSDK_NGX_Result NGXDLSSSRInitResult = NVSDK_NGX_Result_Fail;
+		NVSDK_NGX_Result NGXDLSSRRInitResult = NVSDK_NGX_Result_Fail;
 	};
 
 	
@@ -328,27 +352,42 @@ public:
 
 	bool IsDLSSAvailable() const
 	{
-		return DLSSQueryFeature.bIsAvailable;
+		return NGXQueryFeature.bIsDlssSRAvailable;
 	}
 
-	NVSDK_NGX_Result GetDLSSInitResult() const
+	bool IsDLSSRRAvailable() const
 	{
-		return DLSSQueryFeature.DLSSInitResult;
+		return NGXQueryFeature.bIsDlssRRAvailable;
 	}
 
-	const FNGXDriverRequirements& GetDLSSDriverRequirements() const
+	NVSDK_NGX_Result GetNGXInitResult() const
 	{
-		return DLSSQueryFeature.DriverRequirements;
+		return NGXQueryFeature.NGXInitResult;
+	}
+
+	const FNGXDriverRequirements& GetNGXDriverRequirements() const
+	{
+		return NGXQueryFeature.NGXDriverRequirements;
+	}
+
+	const FNGXDriverRequirements& GetDLSSSRDriverRequirements() const
+	{
+		return NGXQueryFeature.NGXDLSSSRDriverRequirements;
+	}
+
+	const FNGXDriverRequirements& GetDLSSRRDriverRequirements() const
+	{
+		return NGXQueryFeature.NGXDLSSRRDriverRequirements;
 	}
 
 	FDLSSOptimalSettings GetDLSSOptimalSettings(const FDLSSQueryFeature::FDLSSResolutionParameters& InResolution) const
 	{
-		return DLSSQueryFeature.GetDLSSOptimalSettings(InResolution);
+		return NGXQueryFeature.GetDLSSOptimalSettings(InResolution);
 	}
 
 	FDLSSOptimalSettings GetDLSSOptimalSettings(NVSDK_NGX_PerfQuality_Value QualityLevel) const
 	{
-		return DLSSQueryFeature.GetDLSSOptimalSettings(FDLSSQueryFeature::FDLSSResolutionParameters(1000, 1000, QualityLevel));
+		return NGXQueryFeature.GetDLSSOptimalSettings(FDLSSQueryFeature::FDLSSResolutionParameters(1000, 1000, QualityLevel));
 	}
 
 	float GetDLSSResolutionFraction(NVSDK_NGX_PerfQuality_Value QualityLevel) const
@@ -388,12 +427,11 @@ protected:
 	void ApplyCommonNGXParameterSettings(NVSDK_NGX_Parameter* Parameter, const FRHIDLSSArguments& InArguments);
 	static FString GetNGXLogDirectory();
 
-
-	
+	bool IsSafeToShutdownNGX() const;
 
 	FDynamicRHI* DynamicRHI = nullptr;
 	
-	FDLSSQueryFeature DLSSQueryFeature;
+	FDLSSQueryFeature NGXQueryFeature;
 	
 	uint32 FrameCounter = 1;
 
